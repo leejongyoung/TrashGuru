@@ -24,10 +24,12 @@ import { GoalsPage } from './components/GoalsPage';
 import { ActivityHistoryPage } from './components/ActivityHistoryPage';
 import { HelpPage } from './components/HelpPage';
 import { LocationPage } from './components/LocationPage';
+import SplashScreen from './components/SplashScreen';
 
 type AppPage = 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage' | 'about' | 'settings' | 'achievements' | 'goals' | 'activity' | 'help' | 'location' | 'classification' | 'pickup' | 'bags' | 'events' | 'myposts' | 'quizhistory' | 'announcements' | 'rolemanagement';
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true); // State for splash screen
   const [currentPage, setCurrentPage] = useState<AppPage>('home');
   const [userPoints, setUserPoints] = useState(1250);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,6 +42,14 @@ export default function App() {
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [userRole, setUserRole] = useState<'superadmin' | 'admin' | 'user'>('user');
   const [notificationCount, setNotificationCount] = useState(0);
+
+  // Effect to hide splash screen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000); // Show splash for 3 seconds
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check login status and settings on mount
   useEffect(() => {
@@ -234,6 +244,11 @@ export default function App() {
       notifyPointsEarned(points, reason);
     }
   };
+
+  // Render splash screen initially
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   // If not logged in, show auth page
   if (!isLoggedIn) {
