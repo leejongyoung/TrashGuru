@@ -13,6 +13,7 @@ import { EventsPage } from './components/EventsPage';
 import { NotificationPage } from './components/NotificationPage';
 import { AnnouncementPage } from './components/AnnouncementPage';
 import { RoleManagementPage } from './components/RoleManagementPage';
+import { VolunteerPage } from './components/VolunteerPage';
 import { initializeDailyNotifications, initializeSampleNotifications, getUnreadCount, notifyPointsEarned, notifyCommunityActivity } from './utils/notifications';
 import { BottomNav } from './components/BottomNav';
 import { AuthPage } from './components/AuthPage';
@@ -27,7 +28,7 @@ import { LocationPage } from './components/LocationPage';
 import SplashScreen from './components/SplashScreen';
 
 // [중요] 여기에 'quizhistory'가 포함되어 있어야 TS2367 에러가 발생하지 않습니다.
-export type AppPage = 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage' | 'about' | 'settings' | 'achievements' | 'goals' | 'activity' | 'help' | 'location' | 'classification' | 'pickup' | 'bags' | 'events' | 'myposts' | 'quizhistory' | 'announcements' | 'rolemanagement';
+export type AppPage = 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage' | 'about' | 'settings' | 'achievements' | 'goals' | 'activity' | 'help' | 'location' | 'classification' | 'pickup' | 'bags' | 'events' | 'myposts' | 'quizhistory' | 'announcements' | 'rolemanagement' | 'volunteer';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -470,6 +471,7 @@ export default function App() {
         {currentPage === 'pickup' && <PickupPage />}
         {currentPage === 'bags' && <BagsPage />}
         {currentPage === 'events' && <EventsPage />}
+        {currentPage === 'volunteer' && <VolunteerPage />}
         {currentPage === 'mypage' && (
           <MyPage
             username={username}
