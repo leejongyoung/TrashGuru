@@ -1,17 +1,18 @@
 import { Home, HelpCircle, Camera, MessageSquare, ShoppingCart } from 'lucide-react';
+import type { AppPage } from '../App';
 
 interface BottomNavProps {
-  currentPage: 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage';
-  onPageChange: (page: 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage') => void;
+  currentPage: AppPage;
+  onPageChange: (page: AppPage) => void;
 }
 
 export function BottomNav({ currentPage, onPageChange }: BottomNavProps) {
-  const navItems = [
-    { id: 'home' as const, icon: Home, label: '메인' },
-    { id: 'quiz' as const, icon: HelpCircle, label: '퀴즈' },
-    { id: 'search' as const, icon: Camera, label: 'AI 카메라' },
-    { id: 'community' as const, icon: MessageSquare, label: '커뮤니티' },
-    { id: 'shop' as const, icon: ShoppingCart, label: '상점' },
+  const navItems: { id: AppPage; icon: React.ElementType; label: string }[] = [
+    { id: 'home', icon: Home, label: '메인' },
+    { id: 'quiz', icon: HelpCircle, label: '퀴즈' },
+    { id: 'search', icon: Camera, label: 'AI 카메라' },
+    { id: 'community', icon: MessageSquare, label: '커뮤니티' },
+    { id: 'shop', icon: ShoppingCart, label: '상점' },
   ];
 
   return (

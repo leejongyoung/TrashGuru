@@ -26,10 +26,11 @@ import { HelpPage } from './components/HelpPage';
 import { LocationPage } from './components/LocationPage';
 import SplashScreen from './components/SplashScreen';
 
-type AppPage = 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage' | 'about' | 'settings' | 'achievements' | 'goals' | 'activity' | 'help' | 'location' | 'classification' | 'pickup' | 'bags' | 'events' | 'myposts' | 'quizhistory' | 'announcements' | 'rolemanagement';
+// [중요] 여기에 'quizhistory'가 포함되어 있어야 TS2367 에러가 발생하지 않습니다.
+export type AppPage = 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage' | 'about' | 'settings' | 'achievements' | 'goals' | 'activity' | 'help' | 'location' | 'classification' | 'pickup' | 'bags' | 'events' | 'myposts' | 'quizhistory' | 'announcements' | 'rolemanagement';
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true); // State for splash screen
+  const [showSplash, setShowSplash] = useState(true);
   const [currentPage, setCurrentPage] = useState<AppPage>('home');
   const [userPoints, setUserPoints] = useState(1250);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -47,7 +48,7 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 3000); // Show splash for 3 seconds
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -58,13 +59,11 @@ export default function App() {
       setUsername(savedUser);
       setIsLoggedIn(true);
       
-      // Load profile photo
       const savedPhoto = localStorage.getItem(`profilePhoto_${savedUser}`);
       if (savedPhoto) {
         setProfilePhoto(savedPhoto);
       }
 
-      // Load user role
       const savedRoles = localStorage.getItem('userRoles');
       if (savedRoles) {
         const roles = JSON.parse(savedRoles);
@@ -74,7 +73,6 @@ export default function App() {
         }
       }
 
-      // Initialize notifications
       initializeSampleNotifications();
       initializeDailyNotifications();
       setNotificationCount(getUnreadCount());
@@ -101,13 +99,11 @@ export default function App() {
       setLocationPermissionAsked(true);
     }
 
-    // Listen for notification updates
     const handleNotificationUpdate = () => {
       setNotificationCount(getUnreadCount());
     };
     window.addEventListener('notificationUpdate', handleNotificationUpdate);
     
-    // Listen for profile photo updates
     const handleProfilePhotoUpdate = () => {
       const savedUser = localStorage.getItem('user');
       if (savedUser) {
@@ -125,14 +121,12 @@ export default function App() {
     };
   }, []);
 
-  // Request location permission on first login
   useEffect(() => {
     if (isLoggedIn && !locationPermissionAsked) {
       requestLocationPermission();
     }
   }, [isLoggedIn, locationPermissionAsked]);
 
-  // Check for daily notifications every minute
   useEffect(() => {
     if (!isLoggedIn) return;
 
@@ -141,10 +135,7 @@ export default function App() {
       setNotificationCount(getUnreadCount());
     };
 
-    // Check immediately
     checkDailyNotifications();
-
-    // Check every minute
     const interval = setInterval(checkDailyNotifications, 60000);
 
     return () => clearInterval(interval);
@@ -183,14 +174,12 @@ export default function App() {
           localStorage.setItem('userLocation', locationName);
         } catch (error) {
           console.error('Geocoding error:', error);
-          // Still set permission asked even if geocoding fails
         }
         
         setLocationPermissionAsked(true);
         localStorage.setItem('locationPermissionAsked', 'true');
       },
       (error) => {
-        // Silently handle geolocation errors - user can set location manually
         console.log('Location permission not granted or unavailable');
         setLocationPermissionAsked(true);
         localStorage.setItem('locationPermissionAsked', 'true');
@@ -245,12 +234,10 @@ export default function App() {
     }
   };
 
-  // Render splash screen initially
   if (showSplash) {
     return <SplashScreen />;
   }
 
-  // If not logged in, show auth page
   if (!isLoggedIn) {
     return <AuthPage onLogin={handleLogin} />;
   }
@@ -262,8 +249,8 @@ export default function App() {
 
   if (currentPage === 'settings') {
     return (
-      <SettingsPage 
-        onBack={() => setCurrentPage('mypage')} 
+      <SettingsPage
+        onBack={() => setCurrentPage('mypage')}
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
         language={language}
@@ -326,7 +313,9 @@ export default function App() {
     );
   }
 
-  if (currentPage === 'quizhistory') {
+  // [확인] quizhistory는 여기서 별도 레이아웃으로 처리됩니다.
+  const isQuizHistoryPage = currentPage === 'quizhistory'; // Temporary variable
+  if (isQuizHistoryPage) {
     return (
       <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
         <div className="max-w-[430px] mx-auto min-h-screen bg-white dark:bg-gray-900">
@@ -399,66 +388,63 @@ export default function App() {
     );
   }
 
+  // [메인 레이아웃] 여기서 quizhistory는 위에서 이미 처리되었으므로 제거했습니다.
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-[430px] mx-auto min-h-screen pb-20 bg-white dark:bg-gray-900 relative">
-        {/* Notification Modal */}
         {showNotifications && <NotificationPage onClose={() => setShowNotifications(false)} onNavigate={(page) => setCurrentPage(page as AppPage)} />}
 
-        {/* Header */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between sticky top-0 z-10 w-full">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <button
-            onClick={() => setCurrentPage('location')}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition-colors min-w-0"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-600 flex-shrink-0">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <span className="text-sm dark:text-white truncate">{userLocation}</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 flex-shrink-0">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {currentPage !== 'home' && (
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <button
-              onClick={() => setCurrentPage('home')}
+              onClick={() => setCurrentPage('location')}
+              className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition-colors min-w-0"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-600 flex-shrink-0">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span className="text-sm dark:text-white truncate">{userLocation}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 flex-shrink-0">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {currentPage !== 'home' && (
+              <button
+                onClick={() => setCurrentPage('home')}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <Home size={22} className="text-gray-600 dark:text-gray-300" />
+              </button>
+            )}
+            <button 
+              onClick={() => setShowNotifications(true)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors relative"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-300">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {notificationCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </span>
+              )}
+            </button>
+            <button 
+              onClick={() => setCurrentPage('mypage')}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <Home size={22} className="text-gray-600 dark:text-gray-300" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-300">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </button>
-          )}
-          <button 
-            onClick={() => setShowNotifications(true)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors relative"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-300">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            {/* Notification Badge */}
-            {notificationCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                {notificationCount > 9 ? '9+' : notificationCount}
-              </span>
-            )}
-          </button>
-          <button 
-            onClick={() => setCurrentPage('mypage')}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-300">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </button>
-        </div>
-      </header>
+          </div>
+        </header>
 
-        {/* Page Content */}
         <main className="w-full">
           {currentPage === 'home' && (
           <HomePage 
@@ -476,7 +462,7 @@ export default function App() {
           />
         )}
         {currentPage === 'quiz' && <QuizPage onAddPoints={addPoints} onNavigateToHistory={() => setCurrentPage('quizhistory')} />}
-        {currentPage === 'quizhistory' && <QuizHistoryPage />}
+        {/* quizhistory는 위에서 early return으로 처리되므로 여기서 제거함 */}
         {currentPage === 'search' && <SearchPage />}
         {currentPage === 'community' && <CommunityPage />}
         {currentPage === 'shop' && <ShopPage userPoints={userPoints} onPurchase={(cost) => setUserPoints(prev => prev - cost)} />}
@@ -502,7 +488,6 @@ export default function App() {
         )}
         </main>
 
-        {/* Bottom Navigation */}
         <BottomNav currentPage={currentPage} onPageChange={(page) => setCurrentPage(page as AppPage)} />
       </div>
     </div>
