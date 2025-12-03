@@ -1,0 +1,174 @@
+# Created by https://www.toptal.com/developers/gitignore/api/macos,node,windows,linux
+# Optimized & Merged by Lee Jongyoung
+
+### Operating System Files ###
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.icloud
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+### Node.js & Package Managers ###
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+lib-cov
+coverage
+*.lcov
+.nyc_output
+
+# Dependencies
+node_modules/
+jspm_packages/
+web_modules/
+bower_components/
+
+# Caches
+.npm
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.node_repl_history
+.yarn-integrity
+.grunt
+.lock-wscript
+
+# Yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+### Build & Framework Outputs ###
+
+# General Build
+dist
+dist-ssr
+build/Release
+out
+*.tgz
+
+# Next.js
+.next
+
+# Nuxt.js
+.nuxt
+
+# Gatsby
+.cache/
+# public
+
+# VuePress
+.vuepress/dist
+.temp
+
+# Docusaurus
+.docusaurus
+
+# SvelteKit
+.svelte-kit
+
+# Parcel
+.parcel-cache
+
+# Serverless
+.serverless/
+.webpack/
+
+# FuseBox
+.fusebox/
+
+# DynamoDB Local
+.dynamodb/
+
+# TernJS
+.tern-port
+
+# Microbundle
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+### Environment Variables ###
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
+### IDE & Editors ###
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+.vscode-test
+
+# IntelliJ / JetBrains
+.idea
+
+# Visual Studio
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Vim / General Editor Swaps
+*.sw?
