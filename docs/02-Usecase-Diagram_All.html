@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use Case Diagram All</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 스크롤바 제거 */
+            background-color: #f0f2f5;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .canvas-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        canvas {
+            display: block; /* 캔버스 하단 여백 제거 */
+            background-color: #fff;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        .download-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+        .download-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 14px;
+            color: #555;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <canvas id="diagramCanvas"></canvas>
+        
+        <div class="controls">
+            🖱️ 드래그: 이동 / 휠: 확대·축소
+        </div>
+
+        <button class="download-btn" onclick="downloadCanvas()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            이미지 다운로드
+        </button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('diagramCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- 뷰포트 상태 변수 ---
+        let scale = 1.0;
+        let isPanning = false;
+        let startX = 0;
+        let startY = 0; // 드래그 시작 Y 좌표 (함수 내 지역변수와 충돌 방지 위해 전역 관리)
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // --- 상수 정의 ---
+        const USE_CASE_WIDTH = 220;
+        const USE_CASE_HEIGHT = 70;
+        const USE_CASE_FILL = '#FFFFD0'; 
+        const STROKE_COLOR = '#000000';
+        const USE_CASE_GAP_Y = 120;
+        const USE_CASE_START_Y = 100;
+
+        // --- 데이터 객체 초기화 (좌표는 updateLayout에서 설정) ---
+        let useCases = {};
+        let actorsLeft = {};
+        let actorsRight = {};
+
+        // 데이터를 생성하는 함수 (화면 크기에 맞춰 좌표 계산)
+        function initData() {
+            // 화면 중앙 기준 X 좌표
+            const centerX = canvas.width / 2;
+            
+            // 왼쪽 액터 위치 (중앙에서 -450px)
+            const leftBaseX = centerX - 450;
+            
+            // 오른쪽 액터 위치 (중앙에서 +500px)
+            const rightBaseX = centerX + 500;
+
+            // 1. 유즈케이스 데이터
+            useCases = {
+                signup: { x: centerX, y: USE_CASE_START_Y, label: "회원가입" },
+                registerInfo: { x: centerX + 320, y: USE_CASE_START_Y, label: "개인정보등록" }, 
+                login: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 1, label: "로그인" },
+                wasteAI: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 2, label: "폐기물 촬영/AI 인식" },
+                guideMap: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 3, label: "가이드 및/배출규정 매핑" },
+                authPoints: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 4, label: "인증 및 포인트 적립" },
+                proxyMatch: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 5, label: "대리수거 매칭" },
+                community: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 6, label: "커뮤니티/챌린지/랭킹" },
+                shop: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 7, label: "상점(포인트 사용)" },
+                volunteer: { x: centerX, y: USE_CASE_START_Y + USE_CASE_GAP_Y * 8, label: "자원봉사 모집" }
+            };
+
+            // 2. 왼쪽 액터 (사용자 그룹)
+            actorsLeft = {
+                user: { x: leftBaseX, y: 300, label: "사용자" },
+                member: { x: leftBaseX - 100, y: 850, label: "회원" },
+                nonMember: { x: leftBaseX + 100, y: 850, label: "비회원" }
+            };
+
+            // 3. 오른쪽 액터 (시스템/외부)
+            const rightActorStartY = 150;
+            const rightActorGap = 180;
+
+            actorsRight = {
+                camera: { x: rightBaseX, y: rightActorStartY, label: "디바이스 카메라" },
+                aiServer: { x: rightBaseX, y: rightActorStartY + rightActorGap * 1, label: "AI 인식 서버" },
+                gps: { x: rightBaseX, y: rightActorStartY + rightActorGap * 2, label: "GPS" },
+                pointSystem: { x: rightBaseX, y: rightActorStartY + rightActorGap * 3, label: "포인트/결제 시스템" },
+                communityDB: { x: rightBaseX, y: rightActorStartY + rightActorGap * 4, label: "커뮤니티 DB" },
+                volunteerDB: { x: rightBaseX, y: rightActorStartY + rightActorGap * 5, label: "봉사활동 DB" }
+            };
+        }
+
+        // --- 화면 크기 변경 및 초기화 핸들러 ---
+        function handleResize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // 화면 크기가 바뀌었으므로 데이터를 다시 계산하여 중앙 정렬
+            initData();
+            
+            // 화면 비율에 따라 초기 스케일/오프셋 조정 (선택 사항)
+            // 여기서는 기존 뷰 유지
+            draw();
+        }
+
+        window.addEventListener('resize', handleResize);
+
+
+        // --- 그리기 함수들 ---
+
+        function drawActor(x, y, label) {
+            ctx.beginPath();
+            ctx.strokeStyle = STROKE_COLOR;
+            ctx.lineWidth = 1.5;
+            ctx.arc(x, y, 15, 0, Math.PI * 2); // 머리
+            ctx.moveTo(x, y + 15); ctx.lineTo(x, y + 55); // 몸통
+            ctx.moveTo(x - 20, y + 30); ctx.lineTo(x + 20, y + 30); // 팔
+            ctx.moveTo(x, y + 55); ctx.lineTo(x - 15, y + 85); // 다리1
+            ctx.moveTo(x, y + 55); ctx.lineTo(x + 15, y + 85); // 다리2
+            ctx.stroke();
+
+            ctx.fillStyle = STROKE_COLOR;
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y + 100);
+        }
+
+        function drawUseCase(x, y, label) {
+            ctx.beginPath();
+            ctx.fillStyle = USE_CASE_FILL;
+            ctx.strokeStyle = STROKE_COLOR;
+            ctx.lineWidth = 1;
+            ctx.ellipse(x, y, USE_CASE_WIDTH / 2, USE_CASE_HEIGHT / 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = STROKE_COLOR;
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const lines = label.split('/');
+            if (lines.length > 1) {
+                ctx.fillText(lines[0], x, y - 9);
+                ctx.fillText(lines[1], x, y + 11);
+            } else {
+                ctx.fillText(label, x, y);
+            }
+        }
+
+        function drawSolidArrow(fromX, fromY, toX, toY) {
+            const headLength = 12;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.strokeStyle = STROKE_COLOR;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            // 화살표 머리
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fillStyle = STROKE_COLOR;
+            ctx.fill();
+        }
+
+        function drawGeneralizationArrow(fromX, fromY, toX, toY) {
+            const headLength = 15;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            // 빈 삼각형 머리
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawDashedArrow(fromX, fromY, toX, toY, label) {
+            const headLength = 10;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            ctx.save();
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            ctx.restore();
+            // 머리
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.stroke(); 
+            if (label) {
+                ctx.fillStyle = STROKE_COLOR;
+                ctx.fillText(label, (fromX + toX) / 2, (fromY + toY) / 2 - 15);
+            }
+        }
+
+        // --- 메인 드로우 함수 ---
+        function draw() {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(scale, scale);
+
+            // 1. 관계선
+            const userConnections = [
+                useCases.signup, useCases.login, useCases.wasteAI, 
+                useCases.guideMap, useCases.authPoints, useCases.proxyMatch, 
+                useCases.community, useCases.shop, useCases.volunteer
+            ];
+            userConnections.forEach(uc => {
+                drawSolidArrow(actorsLeft.user.x + 20, actorsLeft.user.y + 40, uc.x - USE_CASE_WIDTH/2, uc.y);
+            });
+
+            // 우측 액터 -> 유즈케이스
+            drawSolidArrow(actorsRight.camera.x - 20, actorsRight.camera.y + 40, useCases.wasteAI.x + USE_CASE_WIDTH/2, useCases.wasteAI.y - 10);
+            drawSolidArrow(actorsRight.aiServer.x - 20, actorsRight.aiServer.y + 40, useCases.wasteAI.x + USE_CASE_WIDTH/2, useCases.wasteAI.y + 10);
+            drawSolidArrow(actorsRight.gps.x - 20, actorsRight.gps.y + 40, useCases.guideMap.x + USE_CASE_WIDTH/2, useCases.guideMap.y);
+            drawSolidArrow(actorsRight.pointSystem.x - 20, actorsRight.pointSystem.y + 40, useCases.authPoints.x + USE_CASE_WIDTH/2, useCases.authPoints.y);
+            drawSolidArrow(actorsRight.pointSystem.x - 20, actorsRight.pointSystem.y + 40, useCases.proxyMatch.x + USE_CASE_WIDTH/2, useCases.proxyMatch.y);
+            drawSolidArrow(actorsRight.pointSystem.x - 20, actorsRight.pointSystem.y + 40, useCases.shop.x + USE_CASE_WIDTH/2, useCases.shop.y);
+            drawSolidArrow(actorsRight.communityDB.x - 20, actorsRight.communityDB.y + 40, useCases.community.x + USE_CASE_WIDTH/2, useCases.community.y);
+            drawSolidArrow(actorsRight.volunteerDB.x - 20, actorsRight.volunteerDB.y + 40, useCases.volunteer.x + USE_CASE_WIDTH/2, useCases.volunteer.y);
+
+            // 상속 관계
+            const userTextBottomY = actorsLeft.user.y + 150; 
+            drawGeneralizationArrow(actorsLeft.member.x, actorsLeft.member.y, actorsLeft.user.x - 10, userTextBottomY);
+            drawGeneralizationArrow(actorsLeft.nonMember.x, actorsLeft.nonMember.y, actorsLeft.user.x + 10, userTextBottomY);
+
+            // Include
+            drawDashedArrow(
+                useCases.signup.x + USE_CASE_WIDTH/2, useCases.signup.y, 
+                useCases.registerInfo.x - USE_CASE_WIDTH/2, useCases.registerInfo.y, 
+                "<< include >>"
+            );
+
+            // 2. 액터 및 유즈케이스
+            Object.values(actorsLeft).forEach(actor => drawActor(actor.x, actor.y, actor.label));
+            Object.values(actorsRight).forEach(actor => drawActor(actor.x, actor.y, actor.label));
+            Object.values(useCases).forEach(uc => drawUseCase(uc.x, uc.y, uc.label));
+        }
+
+        // --- 이벤트 리스너 ---
+        canvas.addEventListener('mousedown', (e) => {
+            isPanning = true;
+            startX = e.clientX - offsetX;
+            startY = e.clientY - offsetY;
+            canvas.style.cursor = 'grabbing';
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            e.preventDefault();
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
+            draw();
+        });
+
+        canvas.addEventListener('mouseup', () => { isPanning = false; canvas.style.cursor = 'grab'; });
+        canvas.addEventListener('mouseleave', () => { isPanning = false; canvas.style.cursor = 'grab'; });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            const mouseX = e.offsetX;
+            const mouseY = e.offsetY;
+            const worldX = (mouseX - offsetX) / scale;
+            const worldY = (mouseY - offsetY) / scale;
+
+            if (e.deltaY < 0) {
+                scale += zoomIntensity;
+            } else {
+                scale -= zoomIntensity;
+                if (scale < 0.1) scale = 0.1;
+            }
+            offsetX = mouseX - worldX * scale;
+            offsetY = mouseY - worldY * scale;
+            draw();
+        }, { passive: false });
+
+        function downloadCanvas() {
+            // 다운로드 시 현재 화면 그대로 저장
+            const link = document.createElement('a');
+            link.download = 'use_case_diagram.png';
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 초기 실행
+        handleResize(); // 데이터 초기화 및 사이즈 설정
+
+    </script>
+</body>
+</html>

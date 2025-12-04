@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowChart Diagram Store</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 스크롤바 제거 */
+            background-color: #f0f2f5;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .canvas-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        canvas {
+            display: block; /* 캔버스 하단 여백 제거 */
+            background-color: #fff;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        .download-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+        .download-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 14px;
+            color: #555;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <canvas id="diagramCanvas"></canvas>
+        
+        <div class="controls">
+            🖱️ 드래그: 이동 / 휠: 확대·축소
+        </div>
+
+        <button class="download-btn" onclick="downloadCanvas()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            이미지 다운로드
+        </button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('diagramCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- 뷰포트 상태 변수 ---
+        let scale = 0.8; 
+        let isPanning = false;
+        let startX = 0;
+        let startY = 0; 
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // --- 상수 정의 ---
+        const SHAPE_FILL = '#FFFFD0'; 
+        const NOTE_FILL = '#E0F7FA'; 
+        const STROKE_COLOR = '#000000';
+        const FONT_SIZE = 14;
+
+        // --- 데이터 객체 ---
+        let nodes = {};
+        let edges = [];
+
+        // 데이터를 생성하는 함수 (화면 크기에 맞춰 좌표 계산)
+        function initData() {
+            const centerX = canvas.width / 2;
+            const startY = 50;
+            const gapY = 80;
+
+            // 메인 흐름 좌표
+            nodes = {
+                start: { type: 'terminal', x: centerX, y: startY, label: "Start" },
+                menuSelect: { type: 'process', x: centerX, y: startY + gapY, label: "상점 메뉴 선택" },
+                checkPoints: { type: 'process', x: centerX, y: startY + gapY * 2, label: "현재 포인트 조회" },
+                
+                // 말풍선 1 (왼쪽)
+                noteOptions: { type: 'note', x: centerX - 200, y: startY + gapY * 2.5, label: "찜 목록, 장바구니\n옵션에서 선택도 가능" },
+
+                selectProduct: { type: 'process', x: centerX, y: startY + gapY * 3, label: "상품 선택" },
+                paymentProcess: { type: 'process', x: centerX, y: startY + gapY * 4, label: "상품 결제 진행" },
+                inputPoints: { type: 'process', x: centerX, y: startY + gapY * 5, label: "사용 포인트 입력" },
+                
+                // 분기 1: 포인트 충만 여부
+                checkCoverage: { type: 'decision', x: centerX, y: startY + gapY * 6.5, label: "포인트만으로\n결제 가능 여부" },
+                
+                // Yes 경로 (왼쪽)
+                payFullPoint: { type: 'process', x: centerX - 180, y: startY + gapY * 8, label: "포인트 전액 결제" },
+                
+                // No 경로 (오른쪽)
+                payPartial: { type: 'process', x: centerX + 180, y: startY + gapY * 8, label: "잔여금액\n등록 결제 수단으로\n결제" },
+
+                // 합류 후 분기 2: 결제 성공 여부
+                checkSuccess: { type: 'decision', x: centerX, y: startY + gapY * 9.5, label: "결제 성공 여부" },
+
+                // No 경로 (오른쪽 루프)
+                msgFail: { type: 'process', x: centerX + 350, y: startY + gapY * 9.5, label: "결제 실패 메세지\n및 재시도 요청" },
+
+                // Yes 경로 (아래로)
+                showComplete: { type: 'process', x: centerX, y: startY + gapY * 11, label: "결제 완료 화면표시" },
+                saveOrder: { type: 'process', x: centerX, y: startY + gapY * 12, label: "주문 내역 저장" },
+                showStatus: { type: 'process', x: centerX, y: startY + gapY * 13, label: "주문 상태 표시" },
+
+                // 말풍선 2 (왼쪽)
+                noteStatus: { type: 'note', x: centerX - 200, y: startY + gapY * 13, label: "결제 완료/ 배송 준비/\n배송 완료 등의\n주문상태" }
+            };
+
+            // 연결선 정의
+            edges = [
+                // Start -> ... -> Decision 1
+                { from: 'start', to: 'menuSelect' },
+                { from: 'menuSelect', to: 'checkPoints' },
+                { from: 'checkPoints', to: 'selectProduct' },
+                { from: 'selectProduct', to: 'paymentProcess' },
+                { from: 'paymentProcess', to: 'inputPoints' },
+                { from: 'inputPoints', to: 'checkCoverage' },
+
+                // 분기 1
+                { from: 'checkCoverage', to: 'payFullPoint', label: "Yes", points: [{x: centerX - 180, y: nodes.checkCoverage.y}, {x: centerX - 180, y: nodes.payFullPoint.y}] },
+                { from: 'checkCoverage', to: 'payPartial', label: "No", points: [{x: centerX + 180, y: nodes.checkCoverage.y}, {x: centerX + 180, y: nodes.payPartial.y}] },
+
+                // 합류 -> Decision 2
+                { from: 'payFullPoint', to: 'checkSuccess', points: [{x: centerX - 180, y: nodes.checkSuccess.y}, {x: nodes.checkSuccess.x, y: nodes.checkSuccess.y}] },
+                { from: 'payPartial', to: 'checkSuccess', points: [{x: centerX + 180, y: nodes.checkSuccess.y}, {x: nodes.checkSuccess.x, y: nodes.checkSuccess.y}] },
+
+                // 분기 2
+                // No -> Fail -> Payment Process (Loop)
+                { from: 'checkSuccess', to: 'msgFail', label: "No" },
+                { 
+                    from: 'msgFail', 
+                    to: 'paymentProcess', 
+                    points: [
+                        {x: nodes.msgFail.x, y: nodes.paymentProcess.y} // 위로 올라가서 합류
+                    ]
+                },
+
+                // Yes -> Complete -> ... -> End
+                { from: 'checkSuccess', to: 'showComplete', label: "Yes" },
+                { from: 'showComplete', to: 'saveOrder' },
+                { from: 'saveOrder', to: 'showStatus' }
+            ];
+        }
+
+        // --- 화면 크기 변경 핸들러 ---
+        function handleResize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initData();
+            draw();
+        }
+        window.addEventListener('resize', handleResize);
+
+        // --- 그리기 헬퍼 함수들 ---
+
+        function drawRect(x, y, w, h) {
+            ctx.beginPath();
+            ctx.rect(x - w/2, y - h/2, w, h);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawDiamond(x, y, w, h) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - h/2);
+            ctx.lineTo(x + w/2, y);
+            ctx.lineTo(x, y + h/2);
+            ctx.lineTo(x - w/2, y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawOval(x, y, w, h) {
+            ctx.beginPath();
+            ctx.ellipse(x, y, w/2, h/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawNote(x, y, w, h) {
+            const r = 10;
+            ctx.fillStyle = NOTE_FILL; 
+            ctx.beginPath();
+            ctx.roundRect(x - w/2, y - h/2, w, h, r);
+            ctx.fill();
+            ctx.stroke();
+
+            // 꼬리 (오른쪽으로) - 타겟 프로세스 쪽으로
+            // 여기서는 꼬리가 오른쪽이나 위/아래 등 상황에 따라 다를 수 있음
+            // noteOptions는 checkPoints와 selectProduct 사이, 오른쪽이 타겟
+            // noteStatus는 showStatus 왼쪽, 오른쪽이 타겟
+            
+            // 단순화: 오른쪽 중앙에서 꼬리가 나감
+            ctx.beginPath();
+            ctx.moveTo(x + w/2, y - 10);
+            ctx.lineTo(x + w/2 + 20, y); 
+            ctx.lineTo(x + w/2, y + 10);
+            ctx.fill(); 
+            
+            ctx.beginPath();
+            ctx.moveTo(x + w/2, y - 10);
+            ctx.lineTo(x + w/2 + 20, y);
+            ctx.lineTo(x + w/2, y + 10);
+            ctx.stroke();
+            
+            ctx.fillStyle = SHAPE_FILL; 
+        }
+
+        function drawText(text, x, y) {
+            ctx.fillStyle = STROKE_COLOR;
+            ctx.font = `${FONT_SIZE}px 'Noto Sans KR', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const lines = text.split('\n');
+            if (lines.length > 1) {
+                const lineHeight = FONT_SIZE * 1.2;
+                const startY = y - ((lines.length - 1) * lineHeight) / 2;
+                lines.forEach((line, i) => {
+                    ctx.fillText(line, x, startY + i * lineHeight);
+                });
+            } else {
+                ctx.fillText(text, x, y);
+            }
+        }
+
+        function drawPolyLineArrow(start, end, points) {
+            let prevX = start.x;
+            let prevY = start.y;
+            
+            ctx.beginPath();
+            ctx.moveTo(prevX, prevY);
+            
+            if (points && points.length > 0) {
+                points.forEach(p => {
+                    ctx.lineTo(p.x, p.y);
+                    prevX = p.x;
+                    prevY = p.y;
+                });
+            }
+            
+            ctx.lineTo(end.x, end.y);
+            ctx.stroke();
+
+            const headLen = 10;
+            const angle = Math.atan2(end.y - prevY, end.x - prevX);
+            
+            ctx.beginPath();
+            ctx.moveTo(end.x, end.y);
+            ctx.lineTo(end.x - headLen * Math.cos(angle - Math.PI / 6), end.y - headLen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(end.x - headLen * Math.cos(angle + Math.PI / 6), end.y - headLen * Math.sin(angle + Math.PI / 6));
+            ctx.fillStyle = STROKE_COLOR;
+            ctx.fill();
+        }
+
+        // --- 메인 그리기 함수 ---
+        function draw() {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(scale, scale);
+
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = STROKE_COLOR;
+
+            // 1. 연결선 그리기
+            edges.forEach(edge => {
+                const n1 = nodes[edge.from];
+                const n2 = nodes[edge.to];
+                if (!n1 || !n2) return;
+
+                let startP = { x: n1.x, y: n1.y };
+                let endP = { x: n2.x, y: n2.y };
+                
+                // 시작점 보정
+                if (n1.type === 'process' || n1.type === 'terminal' || n1.type === 'db') {
+                    if (edge.points && edge.points[0].y < n1.y) startP.y -= 25; 
+                    else if (n2.y > n1.y || (edge.points && edge.points[0].y > n1.y)) startP.y += 25; 
+                    else if (n2.x > n1.x || (edge.points && edge.points[0].x > n1.x)) startP.x += 90;
+                    else startP.x -= 90;
+                } else if (n1.type === 'decision') {
+                    if (n2.y > n1.y && (!edge.points || edge.points[0].y > n1.y)) startP.y += 40; 
+                    else if (n2.x > n1.x || (edge.points && edge.points[0].x > n1.x)) startP.x += 60; 
+                    else startP.x -= 60; 
+                }
+
+                // 끝점 보정
+                let lastP = (edge.points && edge.points.length > 0) ? edge.points[edge.points.length-1] : startP;
+                
+                if (n2.type === 'process' || n2.type === 'terminal' || n2.type === 'db') {
+                    if (lastP.y < n2.y) endP.y -= 25;
+                    else if (lastP.y > n2.y) endP.y += 25;
+                    else if (lastP.x < n2.x) endP.x -= 90;
+                    else endP.x += 90;
+                } else if (n2.type === 'decision') {
+                    if (lastP.y < n2.y) endP.y -= 40;
+                    else if (lastP.x < n2.x) endP.x -= 60;
+                    else endP.x += 60;
+                }
+
+                drawPolyLineArrow(startP, endP, edge.points);
+
+                // 라벨 그리기
+                if (edge.label) {
+                    let lx, ly;
+                    if (n1.type === 'decision') {
+                         if (edge.points) {
+                             lx = (startP.x + edge.points[0].x) / 2;
+                             ly = (startP.y + edge.points[0].y) / 2 - 10;
+                         } else {
+                             lx = (startP.x + endP.x) / 2;
+                             ly = (startP.y + endP.y) / 2 - 10;
+                         }
+                         if (edge.label === 'No' && n2.x > n1.x) ly -= 5;
+                         if (edge.label === 'Yes' && n2.y > n1.y) lx += 5;
+                    } else {
+                        lx = (startP.x + endP.x) / 2;
+                        ly = (startP.y + endP.y) / 2;
+                    }
+                    
+                    ctx.save();
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(lx - 12, ly - 8, 24, 16);
+                    ctx.restore();
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText(edge.label, lx, ly);
+                }
+            });
+
+            // 2. 노드 그리기
+            for (let key in nodes) {
+                const n = nodes[key];
+                ctx.fillStyle = (n.type === 'note') ? NOTE_FILL : SHAPE_FILL;
+                
+                if (n.type === 'terminal') {
+                    drawOval(n.x, n.y, 140, 50);
+                } else if (n.type === 'process') {
+                    drawRect(n.x, n.y, 180, 50);
+                } else if (n.type === 'decision') {
+                    drawDiamond(n.x, n.y, 120, 80);
+                } else if (n.type === 'note') {
+                    drawNote(n.x, n.y, 220, 60);
+                }
+                
+                drawText(n.label, n.x, n.y);
+            }
+        }
+
+        // --- 이벤트 리스너 ---
+        canvas.addEventListener('mousedown', (e) => {
+            isPanning = true;
+            startX = e.clientX - offsetX;
+            startY = e.clientY - offsetY;
+            canvas.style.cursor = 'grabbing';
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            e.preventDefault();
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
+            draw();
+        });
+
+        canvas.addEventListener('mouseup', () => { isPanning = false; canvas.style.cursor = 'grab'; });
+        canvas.addEventListener('mouseleave', () => { isPanning = false; canvas.style.cursor = 'grab'; });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            const mouseX = e.offsetX;
+            const mouseY = e.offsetY;
+            const worldX = (mouseX - offsetX) / scale;
+            const worldY = (mouseY - offsetY) / scale;
+
+            if (e.deltaY < 0) {
+                scale += zoomIntensity;
+            } else {
+                scale -= zoomIntensity;
+                if (scale < 0.1) scale = 0.1;
+            }
+            offsetX = mouseX - worldX * scale;
+            offsetY = mouseY - worldY * scale;
+            draw();
+        }, { passive: false });
+
+        function downloadCanvas() {
+            // 다운로드 시 현재 화면 그대로 저장
+            const link = document.createElement('a');
+            link.download = 'use_case_diagram.png';
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 초기 실행
+        handleResize(); // 데이터 초기화 및 사이즈 설정
+
+    </script>
+</body>
+</html>
