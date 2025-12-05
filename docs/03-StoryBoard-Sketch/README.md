@@ -1,6 +1,6 @@
 # 스토리보드 명세서 (UI Description)
 
-> **Notice:** 본 문서는 초기 기획 단계의 [**초안 스케치**](/docs/Resources/03-StoryBoard-Sketch.pdf)를 기반으로 작성되었으며, 구체적인 앱 디자인 시 앱 디자인 가이드라인(Design Guidelines)에 따라 일부 수정될 수 있음을 알려드립니다.
+> **Notice:** 본 문서는 초기 기획 단계의 [**초안 스케치**](/docs/03-StoryBoard-Sketch/StoryBoard-Sketch.pdf)를 기반으로 작성되었으며, 구체적인 앱 디자인 시 앱 디자인 가이드라인(Design Guidelines)에 따라 일부 수정될 수 있음을 알려드립니다.
 
 ## 1. 메인 화면 (Home) [Page 1]
 앱의 첫 진입 화면으로 사용자 상태, 미션, 퀵 메뉴를 제공합니다.

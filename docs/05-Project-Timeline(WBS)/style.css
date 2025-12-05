@@ -1,0 +1,160 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.container {
+    max-width: 100%;
+    overflow-x: auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #2c3e50;
+}
+
+header p {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    position: relative;
+    max-height: 80vh; /* Vertical scroll */
+}
+
+table {
+    border-collapse: collapse;
+    width: max-content; /* Ensure table expands to fit content */
+    font-size: 13px;
+}
+
+th, td {
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Sticky Columns */
+.fixed-col {
+    position: sticky;
+    background-color: #fff;
+    z-index: 10;
+}
+
+th.fixed-col {
+    z-index: 20; /* Higher z-index for header */
+    background-color: #f1f3f5;
+}
+
+/* Adjust left positions for sticky columns */
+/* Assuming fixed widths: ID(50), Name(200), Owner(80), Date(60), Progress(80) */
+.wbs-id { left: 0; width: 50px; }
+.task-name { left: 50px; width: 200px; }
+.owner { left: 250px; width: 80px; }
+.date-col:nth-child(4) { left: 330px; width: 60px; } /* Start Date */
+.date-col:nth-child(5) { left: 390px; width: 60px; } /* End Date */
+.progress-col { left: 450px; width: 80px; }
+
+/* Apply sticky left to tbody cells corresponding to headers */
+tbody tr td:nth-child(1) { position: sticky; left: 0; background-color: #fff; z-index: 10;}
+tbody tr td:nth-child(2) { position: sticky; left: 50px; background-color: #fff; z-index: 10; text-align: left;}
+tbody tr td:nth-child(3) { position: sticky; left: 250px; background-color: #fff; z-index: 10;}
+tbody tr td:nth-child(4) { position: sticky; left: 330px; background-color: #fff; z-index: 10;}
+tbody tr td:nth-child(5) { position: sticky; left: 390px; background-color: #fff; z-index: 10;}
+tbody tr td:nth-child(6) { position: sticky; left: 450px; background-color: #fff; z-index: 10;}
+
+
+th {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    color: #495057;
+    position: sticky;
+    top: 0; /* Sticky Header */
+    z-index: 15;
+}
+
+/* Task Rows */
+.group-header {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+.group-header td.fixed-col {
+    background-color: #e9ecef; /* Match row background for sticky cols */
+}
+
+.sub-task {
+    padding-left: 20px !important;
+    color: #555;
+}
+
+/* Gantt Chart Bars */
+td.active {
+    background-color: #4dabf7; /* Active task color */
+    position: relative;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 16px;
+    position: relative;
+}
+
+.progress-bar .fill {
+    height: 100%;
+    background-color: #20c997;
+    text-align: center;
+    line-height: 16px;
+    color: white;
+    font-size: 10px;
+}
+
+/* Weekend Highlight */
+th:nth-child(n+12):nth-child(-n+13), /* 12/06 Sat, 12/07 Sun */
+th:nth-child(n+19):nth-child(-n+20), /* 12/13 Sat, 12/14 Sun */
+th:nth-child(n+26):nth-child(-n+27)  /* 12/20 Sat, 12/21 Sun */
+{
+    color: #e03131;
+    background-color: #fff0f6;
+}
+
+tbody tr td:nth-child(n+12):nth-child(-n+13),
+tbody tr td:nth-child(n+19):nth-child(-n+20),
+tbody tr td:nth-child(n+26):nth-child(-n+27) {
+    background-color: #fff0f6;
+}
+
+/* Active cells on weekends should override weekend bg */
+tbody tr td.active:nth-child(n+12):nth-child(-n+13),
+tbody tr td.active:nth-child(n+19):nth-child(-n+20),
+tbody tr td.active:nth-child(n+26):nth-child(-n+27) {
+    background-color: #fa5252; /* Distinct color for weekend work */
+}
+
+/* Hover Effect */
+tbody tr:hover td {
+    background-color: #f8f9fa;
+}
+/* Fix sticky bg on hover */
+tbody tr:hover td.fixed-col {
+    background-color: #f8f9fa;
+}

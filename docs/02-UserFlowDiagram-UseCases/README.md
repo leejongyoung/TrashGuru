@@ -1,13 +1,19 @@
 # 분리수거 서비스 유저 플로우 및 유스케이스 정의서 (User Flow & Use Cases)
 
+[🔗 웹으로 보기](./index.html)
+
 ## 1. 개요
 분리수거 서비스는 **사용자(User)** 를 주 액터로 하며, 보조 액터인 디바이스(카메라, GPS), AI 인식 시스템, 포인트/결제 시스템, 커뮤니티/봉사활동 DB 등이 상호작용하여 이루어집니다. 서비스는 폐기물 인식, 분리배출 가이드 제공, 미션 인증, 대리수거 매칭, 커뮤니티, 상점, 자원봉사 모집 등으로 구성됩니다.
 
 ## 2. 주요 기능별 유저 플로우 및 유스케이스
 
-### 1. 로그인 및 회원관리
+### 1. 분리수거 서비스 모델
 
-![그림1 로그인 및 회원관리](./Resources/images/02-UserFlowDiagram-UseCases1.png)
+![그림1 분리수거 서비스 모델](./images/IMAGE_001.png)
+
+### 2. 로그인 및 회원관리
+
+![그림2 로그인 및 회원관리](./images/IMAGE_002.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -74,9 +80,9 @@
   </tbody>
 </table>
 
-### 2. 폐기물 촬영 · AI 인식
+### 3. 폐기물 촬영 · AI 인식
 
-![그림2 폐기물 촬영 · AI 인식](./Resources/images/02-UserFlowDiagram-UseCases2.png)
+![그림3 폐기물 촬영 · AI 인식](./images/IMAGE_003.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -139,9 +145,9 @@
   </tbody>
 </table>
 
-### 3. 가이드 및 배출규정 매핑
+### 4. 가이드 및 배출규정 매핑
 
-![그림3 가이드 및 배출규정 매핑](./Resources/images/02-UserFlowDiagram-UseCases3.png)
+![그림4 가이드 및 배출규정 매핑](./images/IMAGE_004.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -200,9 +206,9 @@
   </tbody>
 </table>
 
-### 4. 인증 및 포인트 적립
+### 5. 인증 및 포인트 적립
 
-![그림4 인증 및 포인트 적립](./Resources/images/02-UserFlowDiagram-UseCases4.png)
+![그림5 인증 및 포인트 적립](./images/IMAGE_005.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -270,9 +276,9 @@
   </tbody>
 </table>
 
-### 5. 대리수거 매칭
+### 6. 대리수거 매칭
 
-![그림5 대리수거 매칭](./Resources/images/02-UserFlowDiagram-UseCases5.png)
+![그림6 대리수거 매칭](./images/IMAGE_006.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -343,9 +349,9 @@
   </tbody>
 </table>
 
-### 6. 커뮤니티·챌린지·랭킹 통합
+### 7. 커뮤니티·챌린지·랭킹 통합
 
-![그림6 커뮤니티·챌린지·랭킹 통합](./Resources/images/02-UserFlowDiagram-UseCases6.png)
+![그림7 커뮤니티·챌린지·랭킹 통합](./images/IMAGE_007.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -417,9 +423,9 @@
   </tbody>
 </table>
 
-### 7. 상점 (포인트 사용)
+### 8. 상점 (포인트 사용)
 
-![그림7 상점 (포인트 사용)](./Resources/images/02-UserFlowDiagram-UseCases7.png)
+![그림8 상점 (포인트 사용)](./images/IMAGE_008.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">
@@ -479,9 +485,9 @@
   </tbody>
 </table>
 
-### 8. 자원 봉사 모집
+### 9. 자원 봉사 모집
 
-![그림8 자원 봉사 모집](./Resources/images/02-UserFlowDiagram-UseCases8.png)
+![그림9 자원 봉사 모집](./images/IMAGE_009.png)
 
 <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
   <thead style="background-color: #f2f2f2;">

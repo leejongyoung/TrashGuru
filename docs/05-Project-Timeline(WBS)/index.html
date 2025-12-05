@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 타임라인 (WBS)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 프로젝트 타임라인 (WBS)</h1>
+            <p>프로젝트 전체 작업 일정 및 진행 현황</p>
+        </header>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="fixed-col wbs-id">ID</th>
+                        <th class="fixed-col task-name">작업 제목</th>
+                        <th class="fixed-col owner">담당자</th>
+                        <th class="fixed-col date-col">시작일</th>
+                        <th class="fixed-col date-col">마감일</th>
+                        <th class="fixed-col progress-col">진행률</th>
+                        <!-- 12/01 ~ 12/21 -->
+                        <th>12/01<br>(월)</th>
+                        <th>12/02<br>(화)</th>
+                        <th>12/03<br>(수)</th>
+                        <th>12/04<br>(목)</th>
+                        <th>12/05<br>(금)</th>
+                        <th>12/06<br>(토)</th>
+                        <th>12/07<br>(일)</th>
+                        <th>12/08<br>(월)</th>
+                        <th>12/09<br>(화)</th>
+                        <th>12/10<br>(수)</th>
+                        <th>12/11<br>(목)</th>
+                        <th>12/12<br>(금)</th>
+                        <th>12/13<br>(토)</th>
+                        <th>12/14<br>(일)</th>
+                        <th>12/15<br>(월)</th>
+                        <th>12/16<br>(화)</th>
+                        <th>12/17<br>(수)</th>
+                        <th>12/18<br>(목)</th>
+                        <th>12/19<br>(금)</th>
+                        <th>12/20<br>(토)</th>
+                        <th>12/21<br>(일)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 1.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">1.0</td>
+                        <td class="fixed-col">프로젝트 계획 수립</td>
+                        <td class="fixed-col">이종영</td>
+                        <td class="fixed-col">12/01</td>
+                        <td class="fixed-col">12/03</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 100%">100%</div></div></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">1.1</td>
+                        <td class="fixed-col sub-task">요구사항 분석 및 정의</td>
+                        <td class="fixed-col">강건희</td>
+                        <td class="fixed-col">12/01</td>
+                        <td class="fixed-col">12/05</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 100%">100%</div></div></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">1.2</td>
+                        <td class="fixed-col sub-task">시스템 아키텍처 설계</td>
+                        <td class="fixed-col">이종영</td>
+                        <td class="fixed-col">12/02</td>
+                        <td class="fixed-col">12/06</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 100%">100%</div></div></td>
+                        <td></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+
+                    <!-- 2.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">2.0</td>
+                        <td class="fixed-col">UI/UX 디자인</td>
+                        <td class="fixed-col">염가영</td>
+                        <td class="fixed-col">12/04</td>
+                        <td class="fixed-col">12/10</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 60%">60%</div></div></td>
+                        <td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">2.1</td>
+                        <td class="fixed-col sub-task">스토리보드 및 와이어프레임</td>
+                        <td class="fixed-col">염가영</td>
+                        <td class="fixed-col">12/04</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 100%">100%</div></div></td>
+                        <td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">2.2</td>
+                        <td class="fixed-col sub-task">Figma 디자인</td>
+                        <td class="fixed-col">염가영</td>
+                        <td class="fixed-col">12/06</td>
+                        <td class="fixed-col">12/10</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 20%">20%</div></div></td>
+                        <td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+
+                    <!-- 3.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">3.0</td>
+                        <td class="fixed-col">프론트엔드 개발</td>
+                        <td class="fixed-col">송수연</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 10%">10%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">3.1</td>
+                        <td class="fixed-col sub-task">컴포넌트 개발</td>
+                        <td class="fixed-col">송수연</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col">12/14</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 10%">10%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">3.2</td>
+                        <td class="fixed-col sub-task">API 연동 및 데이터 처리</td>
+                        <td class="fixed-col">송수연</td>
+                        <td class="fixed-col">12/15</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 0%">0%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+
+                    <!-- 4.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">4.0</td>
+                        <td class="fixed-col">AI 모델 개발 및 연동</td>
+                        <td class="fixed-col">강건희</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 10%">10%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">4.1</td>
+                        <td class="fixed-col sub-task">데이터 수집 및 전처리</td>
+                        <td class="fixed-col">강건희</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col">12/12</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 20%">20%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">4.2</td>
+                        <td class="fixed-col sub-task">모델 학습 및 평가</td>
+                        <td class="fixed-col">강건희</td>
+                        <td class="fixed-col">12/13</td>
+                        <td class="fixed-col">12/17</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 0%">0%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">4.3</td>
+                        <td class="fixed-col sub-task">모델 API 구축 및 연동</td>
+                        <td class="fixed-col">강건희</td>
+                        <td class="fixed-col">12/18</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 0%">0%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+
+                    <!-- 5.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">5.0</td>
+                        <td class="fixed-col">백엔드 개발</td>
+                        <td class="fixed-col">이종영</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 10%">10%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">5.1</td>
+                        <td class="fixed-col sub-task">사용자 인증 및 관리</td>
+                        <td class="fixed-col">이종영</td>
+                        <td class="fixed-col">12/08</td>
+                        <td class="fixed-col">12/14</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 10%">10%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="fixed-col">5.2</td>
+                        <td class="fixed-col sub-task">데이터베이스 설계 및 구축</td>
+                        <td class="fixed-col">이종영</td>
+                        <td class="fixed-col">12/15</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 0%">0%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+
+                     <!-- 6.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">6.0</td>
+                        <td class="fixed-col">통합 테스트 및 디버깅</td>
+                        <td class="fixed-col">팀원 전체</td>
+                        <td class="fixed-col">12/19</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 0%">0%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+
+                    <!-- 7.0 -->
+                    <tr class="group-header">
+                        <td class="fixed-col">7.0</td>
+                        <td class="fixed-col">문서화 및 발표 준비</td>
+                        <td class="fixed-col">팀원 전체</td>
+                        <td class="fixed-col">12/19</td>
+                        <td class="fixed-col">12/21</td>
+                        <td class="fixed-col"><div class="progress-bar"><div class="fill" style="width: 0%">0%</div></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td class="active"></td><td class="active"></td><td class="active"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
