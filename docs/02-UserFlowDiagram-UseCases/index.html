@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trash Guru - Use Case & Flowchart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="sidebar">
+        <h1>쓰레기박사 다이어그램</h1>
+        <ul id="diagram-menu"></ul>
+    </div>
+
+    <div id="content">
+        <div class="canvas-container">
+            <canvas id="diagramCanvas"></canvas>
+            
+            <div id="view-controls" class="view-controls hidden">
+                <button id="flowdataBtn">플로우 차트</button>
+                <button id="usecaseBtn">유스케이스</button>
+            </div>
+    
+            <div class="controls">
+                🖱️ 드래그: 이동 / 휠: 확대·축소
+            </div>
+    
+            <button class="download-btn" id="downloadBtn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                이미지 다운로드
+            </button>
+    
+            <button class="reset-btn" id="resetBtn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 14v1m-7.071-2.929l.707.707M5.636 5.636l.707.707m12.728 0l-.707.707M18.364 18.364l-.707.707M4 12H3m18 0h-1" />
+                </svg>
+                뷰 초기화
+            </button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>

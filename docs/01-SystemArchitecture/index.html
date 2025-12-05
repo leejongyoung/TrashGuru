@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분리배출 서비스 구조도</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="canvas-container">
+        <canvas id="diagramCanvas"></canvas>
+        
+        <div class="helper-text">
+            🖱️ 드래그하여 이동 • 휠로 확대/축소
+        </div>
+
+        <div class="legend">
+            <div style="font-weight:bold; margin-bottom:8px;">범례</div>
+            <div class="legend-item"><div class="dot" style="background:#FF9F43;"></div>메인 서비스</div>
+            <div class="legend-item"><div class="dot" style="background:#FFEAA7; border: 1px solid #FDCB6E;"></div>카테고리/기반</div>
+            <div class="legend-item"><div class="dot" style="background:#E3F2FD; border: 1px solid #90CAF9;"></div>기능 (입력/활성)</div>
+            <div class="legend-item"><div class="dot" style="background:#F5F5F5; border: 1px solid #E0E0E0;"></div>기능 (출력/정보)</div>
+        </div>
+
+        <div class="controls">
+            <button onclick="resetView()">🔄 화면 초기화</button>
+            <button onclick="downloadImage()">💾 투명 배경 저장</button>
+        </div>
+    </div>
+
+        <script>
+
+            // 데이터 정의 (트리 구조)
+
+            // type: root, aux, category, blue, gray
+
+            const data = {
+
+                root: { id: 'root', text: '분리배출 서비스', type: 'root' },
+
+                aux: [
+
+                    { id: 'aux1', text: '로그인 및\n회원관리', type: 'aux' },
+
+                    { id: 'aux2', text: '개인정보/동의', type: 'aux' },
+
+                    { id: 'aux3', text: 'UX·접근성\n·지역화', type: 'aux' }
+
+                ],
+
+                columns: [
+
+                    {
+
+                        head: { id: 'c1', text: 'AI 기반\n폐기물 인식', type: 'category' },
+
+                        children: [
+
+                            { text: '촬영 기능', type: 'blue' },
+
+                            { text: '폐기물 품목 인식', type: 'blue' },
+
+                            { text: 'OCR 재질 인식', type: 'blue' },
+
+                            { text: '바코드 인식', type: 'blue' },
+
+                            { text: '복합재질 매핑', type: 'blue' },
+
+                            { text: '사용자 피드백 수집', type: 'blue' },
+
+                            { text: '인식 신뢰도 안내', type: 'gray' },
+
+                            { text: '온디바이스/\n클라우드 하이브리드', type: 'gray' } // 줄바꿈 조정
+
+                        ]
+
+                    },
+
+                    {
+
+                        head: { id: 'c2', text: '배출 가이드 및\n규정 매핑', type: 'category' },
+
+                        children: [
+
+                            { text: 'GPS 위치', type: 'blue' },
+
+                            { text: '배출 규정 조회', type: 'gray' },
+
+                            { text: '맞춤 가이드 생성', type: 'gray' },
+
+                            { text: '가이드 저장', type: 'gray' }
+
+                        ]
+
+                    },
+
+                    {
+
+                        head: { id: 'c3', text: '인증 및\n포인트·커뮤니티', type: 'category' },
+
+                        children: [
+
+                            { text: '인증샷 업로드', type: 'blue' },
+
+                            { text: '포인트 적립', type: 'blue' },
+
+                            { text: '포인트 사용', type: 'blue' },
+
+                            { text: '게시글 작성', type: 'blue' },
+
+                            { text: '댓글/좋아요', type: 'blue' },
+
+                            { text: '랭킹 시스템', type: 'gray' },
+
+                            { text: '챌린지 시스템', type: 'gray' },
+
+                            { text: '커뮤니티 인증 검증', type: 'gray' },
+
+                            { text: '부정행위 탐지', type: 'gray' }
+
+                        ]
+
+                    },
+
+                    {
+
+                        head: { id: 'c4', text: '대리수거 매칭', type: 'category' },
+
+                        children: [
+
+                            { text: '수거 요청 생성', type: 'blue' },
+
+                            { text: '수거 비용 지불', type: 'blue' },
+
+                            { text: '수거 완료 인증', type: 'blue' },
+
+                            { text: '매칭 기능', type: 'gray' },
+
+                            { text: '보상 지급', type: 'gray' },
+
+                            { text: '수거자 인증\n·평판 시스템', type: 'gray' } // 줄바꿈 추가
+
+                        ]
+
+                    }
+
+                ]
+
+            };
+
+        </script>
+
+        <script src="common.js"></script>
+
+    </body>
+
+    </html>
+
+    

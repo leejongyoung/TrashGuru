@@ -28,7 +28,7 @@
     * 상세 유즈케이스 명세서 (Actor, 시나리오 포함)
 
 ### 🎨 디자인 (UI/UX)
-* **[03. 스토리보드 스케치 (Storyboard Sketch)](/docs/03-Storyboard-Sketch.md)**
+* **[03. 스토리보드 스케치 (Storyboard Sketch)](/docs/03-StoryBoard-Sketch.md)**
     * 초기 화면 설계 및 UI 구성요소 명세
     * > **Note:** 해당 문서는 초기 기획 단계의 **초안 스케치**를 기반으로 작성되었으며, 구체적인 디자인 가이드라인은 포함되지 않았습니다.
 * **[04. Figma 로컬 실행 가이드 (Setup Guide)](/docs/04-Figma-to-React-Setup.md)**
