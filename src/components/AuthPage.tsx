@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff, Check } from 'lucide-react';
+import { CustomAlert } from './ui/custom-alert';
 
 interface AuthPageProps {
   onLogin: (username: string) => void;
@@ -27,6 +28,24 @@ export function AuthPage({ onLogin }: AuthPageProps) {
   const [socialLoginProvider, setSocialLoginProvider] = useState('');
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsContent, setTermsContent] = useState({ title: '', content: '' });
+  
+  // Custom Alert State
+  const [customAlert, setCustomAlert] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onClose?: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+  });
+
+  const handleCloseAlert = () => {
+    const callback = customAlert.onClose;
+    setCustomAlert(prev => ({ ...prev, isOpen: false }));
+    if (callback) callback();
+  };
   
   // Agreement states
   const [agreements, setAgreements] = useState({
@@ -205,7 +224,11 @@ export function AuthPage({ onLogin }: AuthPageProps) {
     e.preventDefault();
     
     if (!username || !password) {
-      alert('아이디와 비밀번호를 입력해주세요.');
+      setCustomAlert({
+        isOpen: true,
+        title: '알림',
+        message: '아이디와 비밀번호를 입력해주세요.',
+      });
       return;
     }
 
@@ -216,7 +239,11 @@ export function AuthPage({ onLogin }: AuthPageProps) {
     } else if (username === 'admin' && password === 'admin') {
       onLogin(username);
     } else {
-      alert('아이디 또는 비밀번호가 올바르지 않습니다.');
+      setCustomAlert({
+        isOpen: true,
+        title: '알림',
+        message: '아이디 또는 비밀번호가 올바르지 않습니다.',
+      });
     }
   };
 
@@ -224,31 +251,53 @@ export function AuthPage({ onLogin }: AuthPageProps) {
     e.preventDefault();
 
     if (!username || !password || !confirmPassword) {
-      alert('모든 필드를 입력해주세요.');
+      setCustomAlert({
+        isOpen: true,
+        title: '알림',
+        message: '모든 필드를 입력해주세요.',
+      });
       return;
     }
 
     if (!agreements.privacy || !agreements.terms) {
-      alert('필수 약관에 동의해주세요.');
+      setCustomAlert({
+        isOpen: true,
+        title: '알림',
+        message: '필수 약관에 동의해주세요.',
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('비밀번호가 일치하지 않습니다.');
+      setCustomAlert({
+        isOpen: true,
+        title: '알림',
+        message: '비밀번호가 일치하지 않습니다.',
+      });
       return;
     }
 
     if (password.length < 4) {
-      alert('비밀번호는 최소 4자 이상이어야 합니다.');
+      setCustomAlert({
+        isOpen: true,
+        title: '알림',
+        message: '비밀번호는 최소 4자 이상이어야 합니다.',
+      });
       return;
     }
 
     localStorage.setItem(`password_${username}`, password);
-    alert('회원가입이 완료되었습니다! 로그인해주세요.');
-    setAuthMode('login');
-    setPassword('');
-    setConfirmPassword('');
-    setAgreements({ privacy: false, terms: false, marketing: false });
+    setCustomAlert({
+      isOpen: true,
+      title: '알림',
+      message: '회원가입이 완료되었습니다! 로그인해주세요.',
+      onClose: () => {
+        setAuthMode('login');
+        setPassword('');
+        setConfirmPassword('');
+        setAgreements({ privacy: false, terms: false, marketing: false });
+      }
+    });
   };
 
   const toggleAgreement = (key: 'privacy' | 'terms' | 'marketing') => {
@@ -478,6 +527,12 @@ export function AuthPage({ onLogin }: AuthPageProps) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="max-w-[430px] w-full min-h-screen bg-white flex flex-col relative">
       {/* Modals */}
+      <CustomAlert 
+        isOpen={customAlert.isOpen}
+        title={customAlert.title}
+        message={customAlert.message}
+        onClose={handleCloseAlert}
+      />
       {showSocialLoginModal && <SocialLoginModal />}
       {showTermsModal && <TermsModal />}
 

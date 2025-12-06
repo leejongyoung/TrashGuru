@@ -25,6 +25,7 @@ import { GoalsPage } from './components/GoalsPage';
 import { ActivityHistoryPage } from './components/ActivityHistoryPage';
 import { HelpPage } from './components/HelpPage';
 import { LocationPage } from './components/LocationPage';
+import { LocationRequestModal } from './components/LocationRequestModal';
 import SplashScreen from './components/SplashScreen';
 
 // [중요] 여기에 'quizhistory'가 포함되어 있어야 TS2367 에러가 발생하지 않습니다.
@@ -44,6 +45,7 @@ export default function App() {
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [userRole, setUserRole] = useState<'superadmin' | 'admin' | 'user'>('user');
   const [notificationCount, setNotificationCount] = useState(0);
+  const [showLocationRequestModal, setShowLocationRequestModal] = useState(false);
 
   // Effect to hide splash screen
   useEffect(() => {
@@ -123,10 +125,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (isLoggedIn && !locationPermissionAsked) {
-      requestLocationPermission();
+    if (isLoggedIn && !locationPermissionAsked && userLocation === '위치 설정') {
+      setShowLocationRequestModal(true);
     }
-  }, [isLoggedIn, locationPermissionAsked]);
+  }, [isLoggedIn, locationPermissionAsked, userLocation]);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -141,6 +143,17 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [isLoggedIn]);
+
+  const handleLocationConfirm = () => {
+    setShowLocationRequestModal(false);
+    requestLocationPermission();
+  };
+
+  const handleLocationCancel = () => {
+    setShowLocationRequestModal(false);
+    setLocationPermissionAsked(true);
+    localStorage.setItem('locationPermissionAsked', 'true');
+  };
 
   const requestLocationPermission = () => {
     if (!navigator.geolocation) {
@@ -235,6 +248,13 @@ export default function App() {
     }
   };
 
+  const deductPoints = (points: number, reason?: string) => {
+    setUserPoints(prev => Math.max(0, prev - points));
+    if (reason) {
+      notifyPointsEarned(-points, reason); // Using notifyPointsEarned with negative value to show deduction
+    }
+  };
+
   if (showSplash) {
     return <SplashScreen />;
   }
@@ -307,7 +327,7 @@ export default function App() {
             <h2 className="dark:text-white">내가 작성한 글</h2>
           </header>
           <main className="w-full">
-            <CommunityPage defaultTab="my" />
+            <CommunityPage defaultTab="my" onAddPoints={addPoints} onDeductPoints={deductPoints} userLocation={userLocation} userPoints={userPoints} />
           </main>
         </div>
       </div>
@@ -393,6 +413,11 @@ export default function App() {
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-[430px] mx-auto min-h-screen pb-20 bg-white dark:bg-gray-900 relative">
+        <LocationRequestModal
+          isOpen={showLocationRequestModal}
+          onConfirm={handleLocationConfirm}
+          onCancel={handleLocationCancel}
+        />
         {showNotifications && <NotificationPage onClose={() => setShowNotifications(false)} onNavigate={(page) => setCurrentPage(page as AppPage)} />}
 
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between sticky top-0 z-10 w-full">
@@ -465,7 +490,7 @@ export default function App() {
         {currentPage === 'quiz' && <QuizPage onAddPoints={addPoints} onNavigateToHistory={() => setCurrentPage('quizhistory')} />}
         {/* quizhistory는 위에서 early return으로 처리되므로 여기서 제거함 */}
         {currentPage === 'search' && <SearchPage />}
-        {currentPage === 'community' && <CommunityPage />}
+        {currentPage === 'community' && <CommunityPage onAddPoints={addPoints} onDeductPoints={deductPoints} userLocation={userLocation} userPoints={userPoints} />}
         {currentPage === 'shop' && <ShopPage userPoints={userPoints} onPurchase={(cost) => setUserPoints(prev => prev - cost)} />}
         {currentPage === 'classification' && <ClassificationPage />}
         {currentPage === 'pickup' && <PickupPage />}
