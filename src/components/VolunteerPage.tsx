@@ -1,4 +1,4 @@
-import { HandHeart, Calendar, Clock, MapPin, Search, CheckCircle, Award, Users, Star, ArrowLeft, ChevronRight, Filter, X, Package } from 'lucide-react';
+import { HandHeart, Calendar, Clock, MapPin, Search, CheckCircle, Award, Users, Star, ArrowLeft, ChevronRight, Filter, X, Package, AlertCircle, PieChart, Info } from 'lucide-react';
 import { useState } from 'react';
 
 interface VolunteerEvent {
@@ -15,6 +15,11 @@ interface VolunteerEvent {
   maxParticipants: number;
   currentParticipants: number;
   status: 'recruiting' | 'closed';
+  genderRatio: { male: number, female: number };
+  ageGroups: { [key: string]: number };
+  deadline: string;
+  cancellationDeadline: string;
+  penalty: string;
 }
 
 interface MyActivity {
@@ -49,6 +54,11 @@ export function VolunteerPage() {
       maxParticipants: 20,
       currentParticipants: 12,
       status: 'recruiting',
+      genderRatio: { male: 45, female: 55 },
+      ageGroups: { '10대': 10, '20대': 40, '30대': 30, '40대 이상': 20 },
+      deadline: '2025.12.14',
+      cancellationDeadline: '2025.12.13',
+      penalty: '활동 시작 24시간 전 미취소 시 노쇼 패널티 부과 (1개월 신청 제한)',
     },
     {
       id: 2,
@@ -64,6 +74,11 @@ export function VolunteerPage() {
       maxParticipants: 10,
       currentParticipants: 8,
       status: 'recruiting',
+      genderRatio: { male: 30, female: 70 },
+      ageGroups: { '10대': 20, '20대': 50, '30대': 20, '40대 이상': 10 },
+      deadline: '2025.12.18',
+      cancellationDeadline: '2025.12.17',
+      penalty: '사전 연락 없이 불참 시 다음 교육 활동 참여 제한',
     },
     {
       id: 3,
@@ -79,6 +94,11 @@ export function VolunteerPage() {
       maxParticipants: 50,
       currentParticipants: 42,
       status: 'recruiting',
+      genderRatio: { male: 60, female: 40 },
+      ageGroups: { '10대': 5, '20대': 60, '30대': 25, '40대 이상': 10 },
+      deadline: '2025.12.21',
+      cancellationDeadline: '2025.12.20',
+      penalty: '노쇼 3회 누적 시 영구 제명',
     },
     {
       id: 4,
@@ -94,6 +114,11 @@ export function VolunteerPage() {
       maxParticipants: 15,
       currentParticipants: 15,
       status: 'closed',
+      genderRatio: { male: 80, female: 20 },
+      ageGroups: { '10대': 0, '20대': 20, '30대': 40, '40대 이상': 40 },
+      deadline: '2025.12.22',
+      cancellationDeadline: '2025.12.21',
+      penalty: '당일 취소 불가, 미참석 시 포인트 차감',
     },
     {
       id: 5,
@@ -109,6 +134,11 @@ export function VolunteerPage() {
       maxParticipants: 30,
       currentParticipants: 5,
       status: 'recruiting',
+      genderRatio: { male: 50, female: 50 },
+      ageGroups: { '10대': 10, '20대': 30, '30대': 30, '40대 이상': 30 },
+      deadline: '2026.01.01',
+      cancellationDeadline: '2025.12.31',
+      penalty: '활동 3일 전까지 취소 가능, 이후 취소 시 패널티 점수 부과',
     },
     {
       id: 6,
@@ -124,6 +154,11 @@ export function VolunteerPage() {
       maxParticipants: 40,
       currentParticipants: 20,
       status: 'recruiting',
+      genderRatio: { male: 40, female: 60 },
+      ageGroups: { '10대': 30, '20대': 30, '30대': 20, '40대 이상': 20 },
+      deadline: '2026.01.08',
+      cancellationDeadline: '2026.01.07',
+      penalty: '별도 패널티 없음',
     },
     {
       id: 7,
@@ -139,6 +174,11 @@ export function VolunteerPage() {
       maxParticipants: 15,
       currentParticipants: 10,
       status: 'recruiting',
+      genderRatio: { male: 70, female: 30 },
+      ageGroups: { '10대': 0, '20대': 40, '30대': 40, '40대 이상': 20 },
+      deadline: '2026.01.10',
+      cancellationDeadline: '2026.01.09',
+      penalty: '무단 불참 시 3개월간 활동 신청 불가',
     },
     {
       id: 8,
@@ -154,6 +194,11 @@ export function VolunteerPage() {
       maxParticipants: 25,
       currentParticipants: 25,
       status: 'closed',
+      genderRatio: { male: 50, female: 50 },
+      ageGroups: { '10대': 20, '20대': 60, '30대': 10, '40대 이상': 10 },
+      deadline: '2026.01.15',
+      cancellationDeadline: '2026.01.14',
+      penalty: '활동 특성상 당일 취소 절대 불가',
     },
     {
       id: 9,
@@ -169,6 +214,11 @@ export function VolunteerPage() {
       maxParticipants: 10,
       currentParticipants: 7,
       status: 'recruiting',
+      genderRatio: { male: 90, female: 10 },
+      ageGroups: { '10대': 0, '20대': 80, '30대': 20, '40대 이상': 0 },
+      deadline: '2026.01.20',
+      cancellationDeadline: '2026.01.18',
+      penalty: '출발 시간 미준수 시 참여 불가 및 패널티 부과',
     }
   ];
 
@@ -278,19 +328,25 @@ export function VolunteerPage() {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-6">
           <div className="space-y-2">
             <div className="flex items-start justify-between">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">{selectedEvent.title}</h1>
-              <span className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-                selectedEvent.status === 'recruiting' 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {selectedEvent.status === 'recruiting' ? '모집중' : '마감'}
-              </span>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight pr-2">{selectedEvent.title}</h1>
+              <div className="flex flex-col items-end gap-1">
+                <span className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
+                  selectedEvent.status === 'recruiting' 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {selectedEvent.status === 'recruiting' ? '모집중' : '마감'}
+                </span>
+                <span className="text-green-600 font-bold text-sm flex items-center gap-1">
+                  <Award size={14} />
+                  {selectedEvent.points}P
+                </span>
+              </div>
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{selectedEvent.organizer}</p>
           </div>
 
-          <div className="flex flex-wrap gap-4 text-sm">
+          <div className="flex flex-wrap gap-2 text-sm">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-lg">
               <Calendar size={16} className="text-green-600" />
               <span>{selectedEvent.date}</span>
@@ -323,16 +379,71 @@ export function VolunteerPage() {
           </div>
 
           <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <h3 className="font-semibold text-gray-900 dark:text-white">참여 현황</h3>
-            <div className="bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
-              <div 
-                className="bg-green-500 h-full rounded-full" 
-                style={{ width: `${(selectedEvent.currentParticipants / selectedEvent.maxParticipants) * 100}%` }}
-              />
+            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <PieChart size={18} className="text-green-600" />
+              참여 현황 분석
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 text-center">성별 비율</div>
+                <div className="flex h-4 rounded-full overflow-hidden">
+                  <div className="bg-blue-400 h-full" style={{ width: `${selectedEvent.genderRatio.male}%` }} />
+                  <div className="bg-pink-400 h-full" style={{ width: `${selectedEvent.genderRatio.female}%` }} />
+                </div>
+                <div className="flex justify-between text-xs mt-1 text-gray-600 dark:text-gray-300">
+                  <span>남 {selectedEvent.genderRatio.male}%</span>
+                  <span>여 {selectedEvent.genderRatio.female}%</span>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 text-center">연령대 비율</div>
+                <div className="flex items-end justify-between h-10 gap-1">
+                  {Object.entries(selectedEvent.ageGroups).map(([age, percent]) => (
+                    <div key={age} className="flex flex-col items-center w-full">
+                      <div className="w-full bg-green-400 rounded-t-sm" style={{ height: `${percent}%` }} />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between text-[10px] mt-1 text-gray-600 dark:text-gray-300">
+                  {Object.keys(selectedEvent.ageGroups).map(age => <span key={age}>{age}</span>)}
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-              <span>현재 {selectedEvent.currentParticipants}명 참여</span>
-              <span>최대 {selectedEvent.maxParticipants}명</span>
+
+            <div className="mt-2">
+              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+                <span>현재 {selectedEvent.currentParticipants}명 참여</span>
+                <span>최대 {selectedEvent.maxParticipants}명</span>
+              </div>
+              <div className="bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
+                <div 
+                  className="bg-green-500 h-full rounded-full" 
+                  style={{ width: `${(selectedEvent.currentParticipants / selectedEvent.maxParticipants) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <AlertCircle size={18} className="text-green-600" />
+              유의사항
+            </h3>
+            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-xl space-y-2 text-sm">
+              <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                <span>신청 마감</span>
+                <span className="font-medium">{selectedEvent.deadline}</span>
+              </div>
+              <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                <span>취소 가능</span>
+                <span className="font-medium">{selectedEvent.cancellationDeadline} 까지</span>
+              </div>
+              <div className="pt-2 border-t border-red-100 dark:border-red-800/30 text-red-600 dark:text-red-400 text-xs">
+                <span className="font-bold mr-1">패널티:</span>
+                {selectedEvent.penalty}
+              </div>
             </div>
           </div>
         </div>
