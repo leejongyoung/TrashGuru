@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Camera, X, Grid3x3, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { Camera, X, Grid3x3, AlertCircle, CheckCircle, Info, RefreshCcw } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface CameraCaptureProps {
   onClose: () => void;
+  initialImage?: string | null;
 }
 
 type RecognitionResult = {
@@ -15,19 +16,21 @@ type RecognitionResult = {
   }[];
 };
 
-export function CameraCapture({ onClose }: CameraCaptureProps) {
-  const [cameraActive, setCameraActive] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+export function CameraCapture({ onClose, initialImage = null }: CameraCaptureProps) {
+  const [cameraActive, setCameraActive] = useState(!initialImage);
+  const [capturedImage, setCapturedImage] = useState<string | null>(initialImage);
   const [recognitionResult, setRecognitionResult] = useState<RecognitionResult | null>(null);
   const [showFailModal, setShowFailModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [showGuide, setShowGuide] = useState(false);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // 랜덤 쓰레기 이미지들
+  // 랜덤 쓰레기 이미지들 (Simulated data)
   const wasteImages = [
+    // ... existing wasteImages data ...
     { 
       url: 'https://images.unsplash.com/photo-1606964575099-8fe6f0bf0872?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFzdGljJTIwYm90dGxlJTIwd2FzdGV8ZW58MXx8fHwxNzY0NTU4NDAxfDA&ixlib=rb-4.1.0&q=80&w=1080',
       recognizable: true,
@@ -63,6 +66,34 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
       items: []
     },
   ];
+
+  // ... existing guideData ...
+
+  useEffect(() => {
+    if (initialImage) {
+      // If an initial image is provided (e.g. from gallery), simulate recognition immediately
+      setCapturedImage(initialImage);
+      setCameraActive(false);
+      
+      // Pick a random mock result for the gallery image too, or ideally we should use a specific one.
+      // For now, using the same random simulation logic.
+      const randomImage = wasteImages[Math.floor(Math.random() * wasteImages.length)];
+      
+      const timer = setTimeout(() => {
+        if (randomImage.recognizable) {
+          setRecognitionResult({
+            success: true,
+            items: randomImage.items,
+          });
+        } else {
+          setRecognitionResult({ success: false });
+          setShowFailModal(true);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [initialImage]);
+
 
   const guideData: { [key: string]: any } = {
     '페트병': {
@@ -129,7 +160,7 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
   const startCamera = async () => {
     setCameraActive(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -153,6 +184,16 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
       stopCamera();
     };
   }, []);
+  
+  // Effect to restart camera when facingMode changes or camera is explicitly activated
+  useEffect(() => {
+    if (cameraActive && !capturedImage && !initialImage) { // Only restart if camera is intended to be active and no image captured yet, and not showing initial image
+      stopCamera(); // Stop current stream if any
+      if (!initialImage) { // Only restart camera if not from initial image (gallery)
+      startCamera();
+    } // Start new stream with updated facingMode
+    }
+  }, [facingMode, cameraActive, capturedImage, initialImage]);
 
   const handleCapture = () => {
     if (videoRef.current) {
@@ -199,7 +240,9 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
     setShowFailModal(false);
     setSelectedItem(null);
     setShowGuide(false);
-    startCamera();
+    if (!initialImage) { // Only restart camera if not from initial image (gallery)
+      startCamera();
+    }
   };
 
   const handleReset = () => {
@@ -208,6 +251,10 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
     setShowFailModal(false);
     setSelectedItem(null);
     setShowGuide(false);
+  };
+
+  const toggleFacingMode = () => {
+    setFacingMode(prevMode => (prevMode === 'environment' ? 'user' : 'environment'));
   };
 
   return (
@@ -219,9 +266,16 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
             <Camera size={24} />
             쓰레기 인식
           </h3>
-          <button onClick={onClose} className="p-2">
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-2"> {/* New wrapper div for buttons */}
+            {cameraActive && !capturedImage && (
+              <button onClick={toggleFacingMode} className="p-2">
+                <RefreshCcw size={24} />
+              </button>
+            )}
+            <button onClick={onClose} className="p-2">
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* Camera View or Result */}
