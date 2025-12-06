@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, X, Grid3x3, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -22,6 +22,9 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
   const [showFailModal, setShowFailModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [showGuide, setShowGuide] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // 랜덤 쓰레기 이미지들
   const wasteImages = [
@@ -123,28 +126,66 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
     },
   };
 
-  const startCamera = () => {
+  const startCamera = async () => {
     setCameraActive(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      setCameraActive(false);
+      // Handle error appropriately, maybe show an alert
+    }
   };
 
-  const handleCapture = () => {
-    // 랜덤으로 쓰레기 이미지 선택
-    const randomImage = wasteImages[Math.floor(Math.random() * wasteImages.length)];
-    setCapturedImage(randomImage.url);
-    setCameraActive(false);
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  };
 
-    // 인식 처리 시뮬레이션 (1초 후)
-    setTimeout(() => {
-      if (randomImage.recognizable) {
-        setRecognitionResult({
-          success: true,
-          items: randomImage.items,
-        });
-      } else {
-        setRecognitionResult({ success: false });
-        setShowFailModal(true);
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
+  const handleCapture = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0);
+        const imageDataUrl = canvas.toDataURL('image/jpeg');
+        setCapturedImage(imageDataUrl);
+        
+        // Stop camera after capture
+        stopCamera();
+        setCameraActive(false);
+
+        // 랜덤으로 쓰레기 이미지 선택 (Mock recognition result)
+        const randomImage = wasteImages[Math.floor(Math.random() * wasteImages.length)];
+
+        // 인식 처리 시뮬레이션 (1초 후)
+        setTimeout(() => {
+          if (randomImage.recognizable) {
+            setRecognitionResult({
+              success: true,
+              items: randomImage.items,
+            });
+          } else {
+            setRecognitionResult({ success: false });
+            setShowFailModal(true);
+          }
+        }, 1000);
       }
-    }, 1000);
+    }
   };
 
   const handleItemSelect = (item: any) => {
@@ -198,6 +239,13 @@ export function CameraCapture({ onClose }: CameraCaptureProps) {
 
         {cameraActive && !capturedImage && (
           <div className="absolute inset-0 flex items-center justify-center">
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              playsInline 
+              muted 
+              className="absolute inset-0 w-full h-full object-cover" 
+            />
             {/* Grid Focus Overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-80 h-80 relative">
