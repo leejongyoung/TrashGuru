@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Home } from 'lucide-react';
 import { HomePage } from './components/HomePage';
 import { QuizPage } from './components/QuizPage';
@@ -27,6 +27,7 @@ import { HelpPage } from './components/HelpPage';
 import { LocationPage } from './components/LocationPage';
 import { LocationRequestModal } from './components/LocationRequestModal';
 import SplashScreen from './components/SplashScreen';
+import { CameraCapture } from './components/CameraCapture';
 
 // [중요] 여기에 'quizhistory'가 포함되어 있어야 TS2367 에러가 발생하지 않습니다.
 export type AppPage = 'home' | 'quiz' | 'search' | 'community' | 'shop' | 'mypage' | 'about' | 'settings' | 'achievements' | 'goals' | 'activity' | 'help' | 'location' | 'classification' | 'pickup' | 'bags' | 'events' | 'myposts' | 'quizhistory' | 'announcements' | 'rolemanagement' | 'volunteer';
@@ -46,6 +47,10 @@ export default function App() {
   const [userRole, setUserRole] = useState<'superadmin' | 'admin' | 'user'>('user');
   const [notificationCount, setNotificationCount] = useState(0);
   const [showLocationRequestModal, setShowLocationRequestModal] = useState(false);
+
+  const [showCamera, setShowCamera] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Effect to hide splash screen
   useEffect(() => {
@@ -255,6 +260,32 @@ export default function App() {
     }
   };
 
+  const handleTakePhoto = () => {
+    setSelectedImage(null);
+    setShowCamera(true);
+  };
+
+  const handleOpenGallery = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target?.result as string;
+        setSelectedImage(imageData);
+        setShowCamera(true);
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset value to allow selecting same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   if (showSplash) {
     return <SplashScreen />;
   }
@@ -409,10 +440,29 @@ export default function App() {
     );
   }
 
-  // [메인 레이아웃] 여기서 quizhistory는 위에서 이미 처리되었으므로 제거했습니다.
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-[430px] mx-auto min-h-screen pb-20 bg-white dark:bg-gray-900 relative">
+    <div className={`h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-[430px] mx-auto h-screen bg-white dark:bg-gray-900 relative flex flex-col">
+        {/* Camera Capture Modal */}
+        {showCamera && (
+          <CameraCapture 
+            onClose={() => {
+              setShowCamera(false);
+              setSelectedImage(null);
+            }} 
+            initialImage={selectedImage}
+          />
+        )}
+
+        {/* Hidden File Input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+
         <LocationRequestModal
           isOpen={showLocationRequestModal}
           onConfirm={handleLocationConfirm}
@@ -471,7 +521,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className="w-full">
+        <main className="w-full flex-1 overflow-y-auto">
           {currentPage === 'home' && (
           <HomePage 
             userPoints={userPoints} 
@@ -482,14 +532,12 @@ export default function App() {
             onNavigateToPickup={() => setCurrentPage('pickup')}
             onNavigateToBags={() => setCurrentPage('bags')}
             onNavigateToEvents={() => setCurrentPage('events')}
-            onNavigateToSearch={() => setCurrentPage('search')}
+            onNavigateToSearch={() => handleTakePhoto()}
             username={username}
             profilePhoto={profilePhoto}
           />
         )}
         {currentPage === 'quiz' && <QuizPage onAddPoints={addPoints} onNavigateToHistory={() => setCurrentPage('quizhistory')} />}
-        {/* quizhistory는 위에서 early return으로 처리되므로 여기서 제거함 */}
-        {currentPage === 'search' && <SearchPage />}
         {currentPage === 'community' && <CommunityPage onAddPoints={addPoints} onDeductPoints={deductPoints} userLocation={userLocation} userPoints={userPoints} />}
         {currentPage === 'shop' && <ShopPage userPoints={userPoints} onPurchase={(cost) => setUserPoints(prev => prev - cost)} />}
         {currentPage === 'classification' && <ClassificationPage />}
@@ -515,8 +563,14 @@ export default function App() {
         )}
         </main>
 
-        <BottomNav currentPage={currentPage} onPageChange={(page) => setCurrentPage(page as AppPage)} />
+        <BottomNav 
+          currentPage={currentPage} 
+          onPageChange={(page) => setCurrentPage(page as AppPage)} 
+          onTakePhoto={handleTakePhoto}
+          onOpenGallery={handleOpenGallery}
+        />
       </div>
     </div>
   );
 }
+

@@ -249,6 +249,16 @@ html {
   animation: slideDown 0.2s ease-out;
 }
 
+/* QR Scan Animation */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-scan {
+  animation: scan 2s linear infinite;
+}
+
 /* Scale animation */
 .active\:scale-98:active {
   transform: scale(0.98);

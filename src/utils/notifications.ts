@@ -1,6 +1,6 @@
 export interface Notification {
   id: string;
-  type: 'quiz' | 'community' | 'point' | 'system' | 'announcement';
+  type: 'quiz' | 'community' | 'point' | 'system' | 'announcement' | 'volunteer';
   title: string;
   message: string;
   timestamp: string;
@@ -136,6 +136,17 @@ export function notifyAnnouncement(title: string, preview: string) {
     message: preview,
     icon: '📢',
     link: 'announcements',
+  });
+}
+
+// Add volunteer notification
+export function notifyVolunteerActivity(title: string, message: string) {
+  addNotification({
+    type: 'volunteer',
+    title: `${title} 🤝`,
+    message: message,
+    icon: '🤝',
+    link: 'volunteer',
   });
 }
 
