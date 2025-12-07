@@ -467,7 +467,7 @@ export function PickupPage() {
                 setViewMode('main');
               }}
               className={`flex-1 py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                role === 'requestor' && viewMode === 'main'
+                false
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
@@ -483,7 +483,7 @@ export function PickupPage() {
                 setViewMode('main');
               }}
               className={`flex-1 py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                role === 'collector' && viewMode === 'main'
+                false
                   ? 'bg-green-600 text-white shadow-md'
                   : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
@@ -531,7 +531,7 @@ export function PickupPage() {
                   setViewMode('main');
                 }}
                 className={`flex-1 py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                  role === 'requestor' && viewMode === 'main'
+                  role === 'requestor'
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
@@ -547,7 +547,7 @@ export function PickupPage() {
                   setViewMode('main');
                 }}
                 className={`flex-1 py-4 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                  role === 'collector' && viewMode === 'main'
+                  role === 'collector'
                     ? 'bg-green-600 text-white shadow-md'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
@@ -563,7 +563,7 @@ export function PickupPage() {
                   setViewMode('stats');
                 }}
                 className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shrink-0 ${
-                   viewMode === 'stats'
+                   false
                     ? 'bg-green-100 text-green-600 border-2 border-green-200'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 border border-transparent'
                 }`}
