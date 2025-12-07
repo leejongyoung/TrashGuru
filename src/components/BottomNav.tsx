@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HandHeart, MessageSquare, Camera, Truck, ShoppingCart, Image } from 'lucide-react';
+import { HandHeart, MessageSquare, Camera, Truck, ShoppingCart, Image, X } from 'lucide-react';
 import type { AppPage } from '../App';
 
 interface BottomNavProps {
@@ -34,12 +34,12 @@ export function BottomNav({ currentPage, onPageChange, onTakePhoto, onOpenGaller
       {/* Menu Backdrop (to close on click outside) */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 z-30" 
+          className="fixed inset-0 z-40" 
           onClick={() => setIsMenuOpen(false)} 
         />
       )}
       
-      <nav className="w-full bg-white border-t border-gray-200 px-2 py-2 z-40 relative">
+      <nav className="w-full bg-white border-t border-gray-200 px-2 py-2 z-50 relative">
         {/* Camera Menu */}
         {isMenuOpen && (
           <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-col gap-4 items-center z-50 animate-in slide-in-from-bottom-4 fade-in duration-200">
@@ -84,8 +84,12 @@ export function BottomNav({ currentPage, onPageChange, onTakePhoto, onOpenGaller
                 }`}
               >
                 {item.id === 'search' ? (
-                  <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isMenuOpen ? 'bg-green-700 rotate-45' : (isActive ? 'bg-gray-200' : 'bg-green-600')}`}>
-                    <Icon size={28} strokeWidth={2.5} className={isActive && !isMenuOpen ? 'text-gray-800' : 'text-white'} />
+                  <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isMenuOpen ? 'bg-gray-800' : (isActive ? 'bg-gray-200' : 'bg-green-600')}`}>
+                    {isMenuOpen ? (
+                      <X size={28} strokeWidth={2.5} className="text-white" />
+                    ) : (
+                      <Icon size={28} strokeWidth={2.5} className={isActive ? 'text-gray-800' : 'text-white'} />
+                    )}
                   </div>
                 ) : (
                   <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Check, Bell, Trash2, Settings, Filter, ChevronDown } from 'lucide-react';
+import { X, Check, Bell, Trash2, Settings, Filter, ChevronDown, HandHeart, Truck, MessageSquare, Star, Megaphone, Target } from 'lucide-react';
 import { getNotifications, markAsRead, markAllAsRead, getUnreadCount, type Notification } from '../utils/notifications';
 
 interface NotificationPageProps {
@@ -10,7 +10,7 @@ interface NotificationPageProps {
 export function NotificationPage({ onClose, onNavigate }: NotificationPageProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [filterType, setFilterType] = useState<'all' | 'unread' | 'quiz' | 'community' | 'point' | 'announcement'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'unread' | 'quiz' | 'community' | 'point' | 'announcement' | 'volunteer' | 'pickup'>('all');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   useEffect(() => {
@@ -18,9 +18,15 @@ export function NotificationPage({ onClose, onNavigate }: NotificationPageProps)
   }, []);
 
   const loadNotifications = () => {
-    const notifs = getNotifications();
-    setNotifications(notifs);
-    setUnreadCount(getUnreadCount());
+    try {
+      const notifs = getNotifications();
+      setNotifications(notifs);
+      setUnreadCount(getUnreadCount());
+    } catch (e) {
+      console.error("Failed to load notifications", e);
+      setNotifications([]);
+      setUnreadCount(0);
+    }
   };
 
   const handleMarkAllAsRead = () => {
@@ -72,11 +78,13 @@ export function NotificationPage({ onClose, onNavigate }: NotificationPageProps)
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'quiz': return '🎯';
-      case 'community': return '💬';
-      case 'point': return '⭐';
-      case 'announcement': return '📢';
-      default: return '🔔';
+      case 'quiz': return <Target size={24} className="text-white" />;
+      case 'community': return <MessageSquare size={24} className="text-white" />;
+      case 'point': return <Star size={24} className="text-white" />;
+      case 'announcement': return <Megaphone size={24} className="text-white" />;
+      case 'volunteer': return <HandHeart size={24} className="text-white" />;
+      case 'pickup': return <Truck size={24} className="text-white" />;
+      default: return <Bell size={24} className="text-white" />;
     }
   };
 
@@ -86,6 +94,8 @@ export function NotificationPage({ onClose, onNavigate }: NotificationPageProps)
       case 'community': return 'from-purple-400 to-purple-500';
       case 'point': return 'from-yellow-400 to-yellow-500';
       case 'announcement': return 'from-red-400 to-red-500';
+      case 'volunteer': return 'from-green-400 to-green-500';
+      case 'pickup': return 'from-indigo-400 to-indigo-500';
       default: return 'from-gray-400 to-gray-500';
     }
   };
@@ -97,12 +107,14 @@ export function NotificationPage({ onClose, onNavigate }: NotificationPageProps)
   });
 
   const filterOptions = [
-    { value: 'all', label: '전체', icon: '📋' },
-    { value: 'unread', label: '읽지 않음', icon: '🔴' },
-    { value: 'quiz', label: '퀴즈', icon: '🎯' },
-    { value: 'community', label: '커뮤니티', icon: '💬' },
-    { value: 'point', label: '포인트', icon: '⭐' },
-    { value: 'announcement', label: '공지', icon: '📢' },
+    { value: 'all', label: '전체', icon: <Bell size={18} /> },
+    { value: 'unread', label: '읽지 않음', icon: <Check size={18} /> },
+    { value: 'volunteer', label: '봉사활동', icon: <HandHeart size={18} /> },
+    { value: 'pickup', label: '대리수거', icon: <Truck size={18} /> },
+    { value: 'quiz', label: '퀴즈', icon: <Target size={18} /> },
+    { value: 'community', label: '커뮤니티', icon: <MessageSquare size={18} /> },
+    { value: 'point', label: '포인트', icon: <Star size={18} /> },
+    { value: 'announcement', label: '공지', icon: <Megaphone size={18} /> },
   ];
 
   // Group notifications by date
@@ -133,90 +145,90 @@ export function NotificationPage({ onClose, onNavigate }: NotificationPageProps)
   }, {});
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 animate-fadeIn flex items-center justify-center">
+    <div className="absolute inset-0 z-[60] bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 animate-fadeIn flex items-center justify-center">
       <div className="w-full max-w-[430px] h-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="sticky top-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 z-20 flex-shrink-0">
-        <div className="px-5 pt-5 pb-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Bell className="text-white" size={20} />
+          <div className="px-5 pt-5 pb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Bell className="text-white" size={20} />
+                </div>
+                <div>
+                  <h1 className="text-xl text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>알림</h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {unreadCount > 0 ? `${unreadCount}개의 새 알림` : '모든 알림을 확인했어요'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl text-gray-900 dark:text-white" style={{ fontWeight: 700 }}>알림</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {unreadCount > 0 ? `${unreadCount}개의 새 알림` : '모든 알림을 확인했어요'}
-                </p>
-              </div>
+              <button
+                onClick={onClose}
+                className="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                <X size={20} className="text-gray-600 dark:text-gray-300" />
+              </button>
             </div>
-            <button
-              onClick={onClose}
-              className="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              <X size={20} className="text-gray-600 dark:text-gray-300" />
-            </button>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            {unreadCount > 0 && (
-              <button
-                onClick={handleMarkAllAsRead}
-                className="flex-1 py-2.5 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
-                style={{ fontWeight: 600 }}
-              >
-                <Check size={16} />
-                <span>모두 읽음</span>
-              </button>
-            )}
-            <button
-              onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex-1 py-2.5 px-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm"
-              style={{ fontWeight: 600 }}
-            >
-              <Filter size={16} />
-              <span>{filterOptions.find(f => f.value === filterType)?.label || '필터'}</span>
-              <ChevronDown size={14} className={`transition-transform ${showFilterMenu ? 'rotate-180' : ''}`} />
-            </button>
-            {notifications.length > 0 && (
-              <button
-                onClick={handleClearAll}
-                className="py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all flex items-center justify-center gap-2 text-sm"
-                style={{ fontWeight: 600 }}
-              >
-                <Trash2 size={16} />
-              </button>
-            )}
-          </div>
-
-          {/* Filter Menu */}
-          {showFilterMenu && (
-            <div className="mt-3 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden animate-slideDown">
-              {filterOptions.map((option) => (
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              {unreadCount > 0 && (
                 <button
-                  key={option.value}
-                  onClick={() => {
-                    setFilterType(option.value as any);
-                    setShowFilterMenu(false);
-                  }}
-                  className={`w-full px-4 py-3 flex items-center gap-3 transition-colors ${
-                    filterType === option.value
-                      ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
-                  }`}
+                  onClick={handleMarkAllAsRead}
+                  className="flex-1 py-2.5 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
+                  style={{ fontWeight: 600 }}
                 >
-                  <span className="text-lg">{option.icon}</span>
-                  <span className="text-sm" style={{ fontWeight: 600 }}>{option.label}</span>
-                  {filterType === option.value && (
-                    <Check size={16} className="ml-auto text-green-600 dark:text-green-400" />
-                  )}
+                  <Check size={16} />
+                  <span>모두 읽음</span>
                 </button>
-              ))}
+              )}
+              <button
+                onClick={() => setShowFilterMenu(!showFilterMenu)}
+                className="flex-1 py-2.5 px-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm"
+                style={{ fontWeight: 600 }}
+              >
+                <Filter size={16} />
+                <span>{filterOptions.find(f => f.value === filterType)?.label || '필터'}</span>
+                <ChevronDown size={14} className={`transition-transform ${showFilterMenu ? 'rotate-180' : ''}`} />
+              </button>
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleClearAll}
+                  className="py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all flex items-center justify-center gap-2 text-sm"
+                  style={{ fontWeight: 600 }}
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
             </div>
-          )}
+
+            {/* Filter Menu */}
+            {showFilterMenu && (
+              <div className="mt-3 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden animate-slideDown">
+                {filterOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setFilterType(option.value as any);
+                      setShowFilterMenu(false);
+                    }}
+                    className={`w-full px-4 py-3 flex items-center gap-3 transition-colors ${
+                      filterType === option.value
+                        ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
+                    <span className="text-lg">{option.icon}</span>
+                    <span className="text-sm" style={{ fontWeight: 600 }}>{option.label}</span>
+                    {filterType === option.value && (
+                      <Check size={16} className="ml-auto text-green-600 dark:text-green-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
         {/* Notifications List */}
         <div className="flex-1 px-5 py-4 pb-24 overflow-y-auto">
@@ -256,7 +268,7 @@ export function NotificationPage({ onClose, onNavigate }: NotificationPageProps)
                       <div className="flex items-start gap-3">
                         {/* Icon */}
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getNotificationGradient(notification.type)} flex items-center justify-center flex-shrink-0 shadow-md`}>
-                          <span className="text-2xl">{notification.icon || getNotificationIcon(notification.type)}</span>
+                          {getNotificationIcon(notification.type)}
                         </div>
                         
                         <div className="flex-1 min-w-0">

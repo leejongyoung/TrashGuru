@@ -563,12 +563,16 @@ export default function App() {
         )}
         </main>
 
-        <BottomNav 
-          currentPage={currentPage} 
-          onPageChange={(page) => setCurrentPage(page as AppPage)} 
-          onTakePhoto={handleTakePhoto}
-          onOpenGallery={handleOpenGallery}
-        />
+        {!showCamera && (
+          <BottomNav 
+            currentPage={currentPage} 
+            onPageChange={(page) => setCurrentPage(page as AppPage)} 
+            onTakePhoto={handleTakePhoto}
+            onOpenGallery={handleOpenGallery}
+          />
+        )}
+        
+        {showNotifications && <NotificationPage onClose={() => setShowNotifications(false)} onNavigate={(page) => setCurrentPage(page as AppPage)} />}
       </div>
     </div>
   );
