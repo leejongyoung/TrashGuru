@@ -540,7 +540,12 @@ export default function App() {
         {currentPage === 'quiz' && <QuizPage onAddPoints={addPoints} onNavigateToHistory={() => setCurrentPage('quizhistory')} />}
         {currentPage === 'community' && <CommunityPage onAddPoints={addPoints} onDeductPoints={deductPoints} userLocation={userLocation} userPoints={userPoints} />}
         {currentPage === 'shop' && <ShopPage userPoints={userPoints} onPurchase={(cost) => setUserPoints(prev => prev - cost)} />}
-        {currentPage === 'classification' && <ClassificationPage />}
+        {currentPage === 'classification' && (
+          <ClassificationPage 
+            userLocation={userLocation} 
+            onRequestLocation={() => setShowLocationRequestModal(true)}
+          />
+        )}
         {currentPage === 'pickup' && <PickupPage />}
         {currentPage === 'bags' && <BagsPage />}
         {currentPage === 'events' && <EventsPage />}
