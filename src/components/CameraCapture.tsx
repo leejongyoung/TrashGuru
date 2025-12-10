@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Camera, X, Grid3x3, AlertCircle, CheckCircle, Info, RefreshCcw } from 'lucide-react';
+import { Camera, X, Grid3x3, AlertCircle, CheckCircle, Info, RefreshCcw, ArrowRight, Send } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { CustomAlert } from './ui/custom-alert';
 
 interface CameraCaptureProps {
   onClose: () => void;
   initialImage?: string | null;
+  mode?: 'identification' | 'verification';
 }
 
 type RecognitionResult = {
@@ -16,7 +18,7 @@ type RecognitionResult = {
   }[];
 };
 
-export function CameraCapture({ onClose, initialImage = null }: CameraCaptureProps) {
+export function CameraCapture({ onClose, initialImage = null, mode = 'identification' }: CameraCaptureProps) {
   const [cameraActive, setCameraActive] = useState(!initialImage);
   const [capturedImage, setCapturedImage] = useState<string | null>(initialImage);
   const [recognitionResult, setRecognitionResult] = useState<RecognitionResult | null>(null);
@@ -24,6 +26,12 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [showVerificationSuccessAlert, setShowVerificationSuccessAlert] = useState(false);
+
+  // Verification Mode States
+  const [verificationStep, setVerificationStep] = useState<'before' | 'after' | 'review'>('before');
+  const [beforeImage, setBeforeImage] = useState<string | null>(null);
+  const [afterImage, setAfterImage] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -70,7 +78,7 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
   // ... existing guideData ...
 
   useEffect(() => {
-    if (initialImage) {
+    if (initialImage && mode === 'identification') {
       // If an initial image is provided (e.g. from gallery), simulate recognition immediately
       setCapturedImage(initialImage);
       setCameraActive(false);
@@ -92,7 +100,7 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [initialImage]);
+  }, [initialImage, mode]);
 
 
   const guideData: { [key: string]: any } = {
@@ -210,21 +218,23 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
         stopCamera();
         setCameraActive(false);
 
-        // 랜덤으로 쓰레기 이미지 선택 (Mock recognition result)
-        const randomImage = wasteImages[Math.floor(Math.random() * wasteImages.length)];
+        if (mode === 'identification') {
+          // 랜덤으로 쓰레기 이미지 선택 (Mock recognition result)
+          const randomImage = wasteImages[Math.floor(Math.random() * wasteImages.length)];
 
-        // 인식 처리 시뮬레이션 (1초 후)
-        setTimeout(() => {
-          if (randomImage.recognizable) {
-            setRecognitionResult({
-              success: true,
-              items: randomImage.items,
-            });
-          } else {
-            setRecognitionResult({ success: false });
-            setShowFailModal(true);
-          }
-        }, 1000);
+          // 인식 처리 시뮬레이션 (1초 후)
+          setTimeout(() => {
+            if (randomImage.recognizable) {
+              setRecognitionResult({
+                success: true,
+                items: randomImage.items,
+              });
+            } else {
+              setRecognitionResult({ success: false });
+              setShowFailModal(true);
+            }
+          }, 1000);
+        }
       }
     }
   };
@@ -257,6 +267,43 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
     setFacingMode(prevMode => (prevMode === 'environment' ? 'user' : 'environment'));
   };
 
+  const handleVerificationNext = () => {
+    if (verificationStep === 'before') {
+      if (capturedImage) {
+        setBeforeImage(capturedImage);
+        setVerificationStep('after');
+        setCapturedImage(null);
+        startCamera();
+      }
+    } else if (verificationStep === 'after') {
+      if (capturedImage) {
+        setAfterImage(capturedImage);
+        setVerificationStep('review');
+        // Do not clear capturedImage here as we might want to show it or just use before/after images
+        setCapturedImage(null); 
+        stopCamera();
+      }
+    }
+  };
+
+  const handleVerificationSend = () => {
+    // Logic to send images would go here
+    setShowVerificationSuccessAlert(true);
+  };
+
+  const handleCloseSuccessAlert = () => {
+    setShowVerificationSuccessAlert(false);
+    onClose();
+  };
+
+  const getGuideText = () => {
+    if (mode === 'verification') {
+      if (verificationStep === 'before') return '배출 전 쓰레기 사진을 촬영해주세요';
+      if (verificationStep === 'after') return '배출 후 사진을 촬영해주세요';
+    }
+    return '쓰레기를 화면 중앙에 맞춰주세요';
+  };
+
   return (
     <div className="fixed inset-0 bg-black z-50 flex justify-center">
       <div className="w-full max-w-[393px] h-full flex flex-col relative bg-black">
@@ -264,7 +311,7 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
         <div className="bg-black text-white p-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2">
             <Camera size={24} />
-            쓰레기 인식
+            {mode === 'verification' ? '분리수거 인증' : '쓰레기 인식'}
           </h3>
           <div className="flex items-center gap-2"> {/* New wrapper div for buttons */}
             {cameraActive && !capturedImage && (
@@ -280,7 +327,7 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
 
         {/* Camera View or Result */}
         <div className="flex-1 relative bg-gray-900">
-          {!cameraActive && !capturedImage && (
+          {!cameraActive && !capturedImage && verificationStep !== 'review' && (
             <div className="absolute inset-0 flex items-center justify-center">
               <button
                 onClick={startCamera}
@@ -321,7 +368,7 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
 
               {/* Guide Text */}
               <div className="absolute top-1/4 left-0 right-0 text-center">
-                <p className="text-white text-lg mb-2">쓰레기를 화면 중앙에 맞춰주세요</p>
+                <p className="text-white text-lg mb-2">{getGuideText()}</p>
                 <p className="text-white/70 text-sm">초점 영역 안에 쓰레기를 배치하세요</p>
               </div>
             </div>
@@ -335,7 +382,27 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
                 className="w-full h-full object-cover"
               />
               
-              {recognitionResult === null && (
+              {mode === 'verification' && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-6 flex gap-4">
+                  <button
+                    onClick={() => {
+                      setCapturedImage(null);
+                      startCamera();
+                    }}
+                    className="flex-1 py-3 bg-white text-gray-900 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                  >
+                    다시 촬영
+                  </button>
+                  <button
+                    onClick={handleVerificationNext}
+                    className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    다음 <ArrowRight size={20} />
+                  </button>
+                </div>
+              )}
+
+              {mode === 'identification' && recognitionResult === null && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-white text-center">
                     <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -344,7 +411,7 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
                 </div>
               )}
 
-              {recognitionResult?.success && !showGuide && (
+              {mode === 'identification' && recognitionResult?.success && !showGuide && (
                 <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 max-h-[60vh] overflow-y-auto">
                   <div className="flex items-center gap-2 mb-4 text-green-600">
                     <CheckCircle size={24} />
@@ -435,6 +502,38 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
               )}
             </div>
           )}
+
+          {verificationStep === 'review' && (
+            <div className="absolute inset-0 bg-gray-900 flex flex-col">
+              <div className="flex-1 p-4 grid grid-rows-2 gap-4">
+                <div className="relative rounded-xl overflow-hidden bg-gray-800">
+                  <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">배출 전</span>
+                  {beforeImage && (
+                    <ImageWithFallback src={beforeImage} alt="Before" className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="relative rounded-xl overflow-hidden bg-gray-800">
+                  <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">배출 후</span>
+                  {afterImage && (
+                    <ImageWithFallback src={afterImage} alt="After" className="w-full h-full object-cover" />
+                  )}
+                </div>
+              </div>
+              <div className="p-6 bg-white rounded-t-3xl">
+                <h3 className="text-lg font-bold mb-2">분리수거 인증 확인</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  촬영된 사진을 확인해주세요. 올바르게 분리배출 되었다면 전송 버튼을 눌러주세요.
+                </p>
+                <button
+                  onClick={handleVerificationSend}
+                  className="w-full py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Send size={20} />
+                  인증 사진 보내기
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Capture Button */}
@@ -483,6 +582,14 @@ export function CameraCapture({ onClose, initialImage = null }: CameraCapturePro
             </div>
           </div>
         )}
+
+        {/* Verification Success Modal */}
+        <CustomAlert
+          isOpen={showVerificationSuccessAlert}
+          title="인증 완료!"
+          message="분리수거 인증 사진이 성공적으로 전송되었습니다."
+          onClose={handleCloseSuccessAlert}
+        />
       </div>
     </div>
   );
