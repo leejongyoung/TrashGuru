@@ -50,7 +50,7 @@ export function BottomNav({ currentPage, onPageChange, onTakePhoto, onOpenGaller
               }}
               className="flex items-center gap-3 bg-white px-5 py-3 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition-colors whitespace-nowrap"
             >
-              <span className="text-sm font-medium text-gray-700">사진 촬영하기</span>
+              <span className="text-sm font-medium text-gray-700">쓰레기 인식하기</span>
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
                 <Camera size={18} />
               </div>
@@ -62,9 +62,9 @@ export function BottomNav({ currentPage, onPageChange, onTakePhoto, onOpenGaller
               }}
               className="flex items-center gap-3 bg-white px-5 py-3 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition-colors whitespace-nowrap"
             >
-              <span className="text-sm font-medium text-gray-700">갤러리에서 선택</span>
+              <span className="text-sm font-medium text-gray-700">분리수거 인증하기</span>
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                <Image size={18} />
+                <Camera size={18} />
               </div>
             </button>
           </div>

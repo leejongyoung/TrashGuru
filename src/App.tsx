@@ -49,6 +49,7 @@ export default function App() {
   const [showLocationRequestModal, setShowLocationRequestModal] = useState(false);
 
   const [showCamera, setShowCamera] = useState(false);
+  const [cameraMode, setCameraMode] = useState<'identification' | 'verification'>('identification');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -261,12 +262,15 @@ export default function App() {
   };
 
   const handleTakePhoto = () => {
+    setCameraMode('identification');
     setSelectedImage(null);
     setShowCamera(true);
   };
 
   const handleOpenGallery = () => {
-    fileInputRef.current?.click();
+    setCameraMode('verification');
+    setSelectedImage(null);
+    setShowCamera(true);
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -451,6 +455,7 @@ export default function App() {
               setSelectedImage(null);
             }} 
             initialImage={selectedImage}
+            mode={cameraMode}
           />
         )}
 
