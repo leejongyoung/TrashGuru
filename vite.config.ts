@@ -11,7 +11,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo.svg'],
+      includeAssets: ['logo.svg', 'logo.png'],
       manifest: {
         name: '쓰레기박사',
         short_name: '쓰레기박사',
@@ -23,11 +23,17 @@ export default defineConfig({
         start_url: '/TrashGuru/',
         icons: [
           {
-            src: 'assets/logo.svg',
+            src: 'logo.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable',
+            purpose: 'any',
           },
+          {
+            src: 'logo.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'apple touch icon',
+          }
         ],
       },
     }),
