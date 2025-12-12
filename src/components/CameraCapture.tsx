@@ -519,7 +519,7 @@ export function CameraCapture({ onClose, initialImage = null, mode = 'identifica
                   )}
                 </div>
               </div>
-              <div className="p-6 bg-white rounded-t-3xl">
+              <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-lg z-50 p-6">
                 <h3 className="text-lg font-bold mb-2">분리수거 인증 확인</h3>
                 <p className="text-gray-600 text-sm mb-4">
                   촬영된 사진을 확인해주세요. 올바르게 분리배출 되었다면 전송 버튼을 눌러주세요.
