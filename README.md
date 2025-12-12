@@ -45,9 +45,9 @@
 ### 🎬 시연 영상 (Demonstration Videos)
 * **[로그인 및 메인 기능 시연](/docs/08-Videos/dr_trash_login.mp4)**
     * AI 폐기물 인식 애플리케이션의 로그인 및 주요 기능 시연
-* **[재활용품 인식 시연 (유리병)](/docs/08-Videos/recycling_recognition_glass_bottle.mp4)**
+* **[재활용품 분리수거 분리 전, 분리 후 촬영 시연 (유리병)](/docs/08-Videos/recycling_recognition_glass_bottle.mp4)**
     * AI 기반 재활용품 인식 기능 (유리병) 시연
-* **[일반 쓰레기 인식 시연 (유리병)](/docs/08-Videos/trash_recognition_glass_bottle.mp4)**
+* **[재활용 쓰레기 인식 시연 (유리병)](/docs/08-Videos/trash_recognition_glass_bottle.mp4)**
     * AI 기반 일반 쓰레기 인식 기능 (유리병) 시연
 
 
